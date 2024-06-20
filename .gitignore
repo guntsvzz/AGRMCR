@@ -1,6 +1,5 @@
 __pycache__
 *.json
-*.txt
 *.pkl
 *.zip
 *.gz
