@@ -1,7 +1,15 @@
+# AGRMCR - Adapting Graph Reasoning for Explainable Cold Start Recommendation on Multi-Round Conversation Recommendation
+
+## Data Preparation
+
+<details>
+
+<summary>Datasets</summary>
 
 Download [Metadata Amazon dataset 2018](https://cseweb.ucsd.edu/~jmcauley/datasets/amazon_v2/)
-Download [Rating Amazon dataset 2018](https://nijianmo.github.io/amazon/index.html)
+& [Rating Amazon dataset 2018](https://nijianmo.github.io/amazon/index.html)
 
+### Summary statistics of datasets.
 Following ScomGNN, filter categories more than 4 categories & pricing is not empty
 Here's the updated table with the new columns added:
 
@@ -14,6 +22,8 @@ Here's the updated table with the new columns added:
 | Office Products      | 5,581,313 reviews    | 315,644 products     | 42,785 products      | xx           | xx   | xx       | xx    |
 | Sports and Outdoors  | 12,980,837 reviews   | 962,876 products     | 87,076 products      | xx           | xx   | xx       | xx    |
 
+### Summary statistics of preprocessed datasets.
+
 |                   | Appliances | Electronics | Grocery and Gourmet Food | Home and Kitchen | Office Products | Sports and Outdoors |
 |-------------------|------------|-------------|--------------------------|------------------|-----------------|---------------------|
 | **#Users**        | xx         | xx          | xx                       | xx               | xx              | xx                  |
@@ -24,6 +34,9 @@ Here's the updated table with the new columns added:
 | **#Relations**    | xx         | xx          | xx                       | xx               | xx              | xx                  |
 | **#Triplets**     | xx         | xx          | xx                       | xx               | xx              | xx                  |
 
+
+### Entities and Relations
+```bash
 Head    -> Relation         -> Tail
 1. USER -> INTERACT         -> ITEM
 2. ITEM -> ALSO_BUY         -> ITEM 
@@ -32,10 +45,43 @@ Head    -> Relation         -> Tail
 5. ITEM -> PRODUCE_BY       -> FEATURE(BRAND)
 6. ITEM -> DESCRIBED_BY     -> FEATURE(FUNCTION)
 7. TYPE -> BELONG_TO_LARGE  -> CATEGORIES
-
-
-## GRAPH FORMAT
 ```
+
+</details>
+
+<details>
+
+<summary> Graph Formating </summary>
+
+```bash
+brand_dict.json
+{
+    "brandA" : 0,
+    "brandB" : 1,
+    ...
+}
+feature2id.json
+{
+    "brand1"    : 0,
+    "brand2"    : 1,
+    ...
+    "brandX"    : x,
+    ...
+    "category1" :  x+1,
+    "category2" :  x+2,
+    ...
+    "category"  :  x+y,
+    ...
+    "type1"     :  x+y+1,
+    "type2"     :  x+y+2,
+    ...
+    "typez"     :  x+y+z,
+
+
+}
+```
+
+```bash
 user_dict.json
 {
     "0" : {
@@ -52,7 +98,7 @@ user_dict.json
 }
 ```
 
-```
+```bash
 item_dict.json
 {
     "0" : {
@@ -71,7 +117,7 @@ item_dict.json
 }
 ```
 
-```
+```bash
 feature_dict.json
 {
     "0" : {
@@ -113,3 +159,20 @@ second-layer_oringinal_tag_map.json
     "Categories#2": [TypeD, TypeE, TypeF],
 }
 ```
+
+</details>
+
+## Requirement 
+```bash
+pip install -r requirements.txt
+```
+
+## Training
+```bash
+python3 RL_model.py --data_name AMAZON --domain Office_Products --max_steps 1 --sample_times 1 
+```
+## Evaluation
+```bash
+python3 evaluate.py --data_name AMAZON --load_rl_epoch 10
+```
+## Citation
