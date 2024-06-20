@@ -19,9 +19,22 @@ EnvDict = {
     }
 
 def dqn_evaluate(args, kg, dataset, agent, filename, i_episode):
-    test_env = EnvDict[args.data_name](kg, dataset, args.data_name, args.embed, seed=args.seed, max_turn=args.max_turn,
-                                       cand_num=args.cand_num, cand_item_num=args.cand_item_num, attr_num=args.attr_num, mode='test', ask_num=args.ask_num, entropy_way=args.entropy_method,
-                                       fm_epoch=args.fm_epoch)
+    test_env = EnvDict[args.data_name](
+        kg, 
+        dataset, 
+        args.data_name, 
+        args.embed, 
+        seed=args.seed, 
+        max_turn=args.max_turn,
+        cand_num=args.cand_num, 
+        cand_item_num=args.cand_item_num, 
+        attr_num=args.attr_num, 
+        mode='test', 
+        ask_num=args.ask_num, 
+        entropy_way=args.entropy_method,
+        fm_epoch=args.fm_epoch,
+        domain = args.domain
+    )
     set_random_seed(args.seed)
     tt = time.time()
     start = tt
@@ -46,12 +59,22 @@ def dqn_evaluate(args, kg, dataset, agent, filename, i_episode):
         else:
             test_size = 2500     # Only do 2500 iteration for the sake of time
         user_size = test_size
-    if args.data_name in [AMAZON]:
-        if args.eval_num == 1:
-            test_size = 10
-        else:
-            test_size = 1     # Only do 2500 iteration for the sake of time
+    if args.data_name in [AMAZON]: 
+        if args.domain == 'Appliances':
+            if args.eval_num == 1:
+                test_size = 100
+            else:
+                test_size = 100     # Only do 2500 iteration for the sake of time
+        elif args.domain == 'Office_Products':
+            if args.eval_num == 1:
+                test_size = 500
+            else:
+                test_size = 2500     # Only do 2500 iteration for the sake of time
+        elif args.domain == 'Eletronics':
+            pass
+        
         user_size = test_size
+        
     print('The select Test size : ', test_size)
     for user_num in tqdm(range(user_size)):  #user_size
         # TODO uncommend this line to print the dialog process

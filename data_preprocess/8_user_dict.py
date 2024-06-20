@@ -2,6 +2,7 @@ import pandas as pd
 import json
 import sys
 from tqdm.auto import tqdm
+import os
 
 def main():
     # Load the Office Products ID dictionary
@@ -67,7 +68,7 @@ def main():
     with open(save_path_review, 'w') as f:
         json.dump(review, f, indent=4)
 
-    print(f"JSON data saved to {save_path_review}")
+    print(f"Train JSON data saved to {save_path_review}")
     
     # Split the review dictionary into validation and test sets
     review_valid = {}
@@ -98,6 +99,13 @@ if __name__ == '__main__':
     review_amazon_data = "./raw_data/{}_5.json".format(data_name)
     rating_amazon_data = "./raw_data/{}.csv".format(data_name)
     save_path = "./tmp/user_dict_{}.json".format(data_name)
-    save_path_review = "./tmp/review_dict_train_{}.json".format(data_name)
+    # save_path_review = "./tmp/review_dict_train_{}.json".format(data_name)
+    
+    # Get the directory path
+    path_ui = f"../data/amazon_{data_name}/UI_Interaction_data/"
+    # Create the directory if it does not exist
+    if not os.path.exists(path_ui):
+        os.makedirs(path_ui)
+    save_path_review = f"{path_ui}review_dict_train_{data_name}.json"
     
     main()

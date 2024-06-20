@@ -119,12 +119,19 @@ class EnumeratedRecommendEnv(object):
 
     def __load_rl_data__(self, data_name, mode):
         if mode == 'train':
-            with open(os.path.join(DATA_DIR[data_name], f'UI_Interaction_data/review_dict_valid_{self.domain}.json'), encoding='utf-8') as f:
+            with open(os.path.join(f'{DATA_DIR[data_name]}_{self.domain}', f'UI_Interaction_data/review_dict_valid_{self.domain}.json'), encoding='utf-8') as f:
                 print('train_data: load RL valid data')
                 mydict = json.load(f)
         elif mode == 'test':
-            with open(os.path.join(DATA_DIR[data_name], f'UI_Interaction_data/review_dict_test_{self.domain}.json'), encoding='utf-8') as f:
+            with open(os.path.join(f'{DATA_DIR[data_name]}_{self.domain}', f'UI_Interaction_data/review_dict_test_{self.domain}.json'), encoding='utf-8') as f:
                 mydict = json.load(f)
+                
+        # Remove strings from the lists in mydict
+        for key, interact in mydict.items():
+            mydict[key] = [item for item in interact if not isinstance(item, str)]
+        # Remove keys with empty lists
+        mydict = {key: value for key, value in mydict.items() if value}
+        
         return mydict
 
 

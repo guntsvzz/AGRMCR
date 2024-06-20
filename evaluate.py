@@ -58,7 +58,10 @@ def evaluate(args, kg, dataset, filename):
     agent = Agent(device=args.device, memory=memory, state_size=args.hidden, action_size=embed.size(1), \
         hidden_size=args.hidden, gcn_net=gcn_net, learning_rate=args.learning_rate, l2_norm=args.l2_norm, PADDING_ID=embed.size(0)-1)
     print('Staring loading rl model in epoch {}'.format(args.load_rl_epoch))
-    agent.load_model(data_name=args.data_name, filename=filename, epoch_user=args.load_rl_epoch)
+    print(args.data_name)
+    print(filename)
+    print(args.load_rl_epoch)
+    # agent.load_model(data_name=args.data_name, filename=filename, epoch_user=args.load_rl_epoch)
 
     tt = time.time()
     start = tt
@@ -90,6 +93,7 @@ def evaluate(args, kg, dataset, filename):
             cand = next_cand
             if done:
                 enablePrint()
+                # print(f'Turn: {t}, Reward: {reward.item()}')
                 if reward.item() == 1:  # recommend successfully
                     SR_turn_15 = [v+1 if i>t  else v for i, v in enumerate(SR_turn_15) ]
                     if t < 5:
@@ -165,8 +169,8 @@ def main():
 
     parser.add_argument('--data_name', type=str, default=LAST_FM, choices=[LAST_FM, LAST_FM_STAR, YELP, YELP_STAR, AMAZON, AMAZON_STAR],
                         help='One of {LAST_FM, LAST_FM_STAR, YELP, YELP_STAR, AMAZON, AMAZON_STAR}.')
-    parser.add_argument('--domain', type=str, default='Office_Products', choices=['Office_Products','Electronics', 'Sports_and_Outdoors', 'Clothing_Shoes_and_Jewelry'],
-                        help='One of {Office_Products, Electronics, Sports_and_Outdoors, Clothing_Shoes_and_Jewelry}.')
+    parser.add_argument('--domain', type=str, default='Office_Products', choices=['Appliances', 'Office_Products','Electronics', 'Sports_and_Outdoors', 'Clothing_Shoes_and_Jewelry'],
+                        help='One of {Appliances, Office_Products, Electronics, Sports_and_Outdoors, Clothing_Shoes_and_Jewelry}.')
     parser.add_argument('--entropy_method', type=str, default='weight_entropy', help='entropy_method is one of {entropy, weight entropy}')
     # Although the performance of 'weighted entropy' is better, 'entropy' is an alternative method considering the time cost.
     parser.add_argument('--max_turn', type=int, default=15, help='max conversation turn')
@@ -174,7 +178,7 @@ def main():
     parser.add_argument('--attr_num', type=int, help='the number of attributes')
     parser.add_argument('--mode', type=str, default='train', help='the mode in [train, test]')
     parser.add_argument('--ask_num', type=int, default=1, help='the number of features asked in a turn')
-    parser.add_argument('--observe_num', type=int, default=500, help='the number of epochs to save RL model and metric')
+    parser.add_argument('--observe_num', type=int, default=100, help='the number of epochs to save RL model and metric')
     parser.add_argument('--load_rl_epoch', type=int, default=0, help='the epoch of loading RL model')
 
     parser.add_argument('--sample_times', type=int, default=100, help='the epoch of sampling')

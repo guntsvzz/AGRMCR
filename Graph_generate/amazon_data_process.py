@@ -32,8 +32,9 @@ class AmazonDataset(object):
         m=EasyDict(id=entity_id, value_len=max(max(entity_id)+1,988))
         setattr(self,'feature',m)
         
-if __name__ == '__main__':  
-    dataset = AmazonDataset('Office_Products')
+if __name__ == '__main__': 
+    domain =  'Appliances'
+    dataset = AmazonDataset(domain)
     print('Dataset Name', dataset.domain)
     print('Number of User :', dataset.user.value_len) #4905
     print('Number of Item :', dataset.item.value_len) #42784 

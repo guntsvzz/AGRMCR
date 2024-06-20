@@ -20,7 +20,7 @@ class AmazonGraph(object):
         self.__get_feature__()
             
     def __get_user__(self):
-        with open(f'./data_preprocess/tmp/review_dict_valid_{self.domain}.json', 'r', encoding='utf-8') as f:
+        with open(f'./data/amazon_{self.domain}/UI_Interaction_data/review_dict_valid_{self.domain}.json', 'r', encoding='utf-8') as f:
             ui_train=json.load(f)
             self.G['user']={}
             for user in tqdm(ui_train):
@@ -87,8 +87,8 @@ class AmazonGraph(object):
                 self.G['feature'][feature]['belong_to']+=tuple([item])
                 
 if __name__ == '__main__':  
-    dataset_name = 'Office_Products' 
-    kg = AmazonGraph(dataset_name)    
+    domain =  'Appliances'
+    kg = AmazonGraph(domain)    
     print('Node of User', len(kg.G['user']))
     print('Node of Item,',len(kg.G['item']))
     print('NOde of Feature', len(kg.G['feature']))

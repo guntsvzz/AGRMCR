@@ -73,7 +73,6 @@ def load_embed(dataset, embed, epoch):
         print('{} Embedding load successfully!'.format(embed))
         return embeds
 
-
 def load_rl_agent(dataset, filename, epoch_user):
     model_file = TMP_DIR[dataset] + '/RL-agent/' + filename + '-epoch-{}.pkl'.format(epoch_user)
     model_dict = torch.load(model_file)

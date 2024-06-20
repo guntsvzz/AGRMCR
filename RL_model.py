@@ -132,6 +132,10 @@ def train(args, kg, dataset, filename):
                     next_state, next_cand, action_space, reward, done = env.step(action.item(), sorted_actions, agent.gcn_net.embedding.weight.data.cpu().detach().numpy())
                 else:
                     next_state, next_cand, action_space, reward, done = env.step(action.item(), sorted_actions)
+                
+                print(f"Step {t}, Action: {action}, Reward: {reward}, Done: {done}")
+                if math.isnan(reward):
+                    raise ValueError("Reward is NaN")
                 epi_reward += reward
                 reward = torch.tensor([reward], device=args.device, dtype=torch.float)
                 if done:
@@ -192,8 +196,8 @@ def main():
 
     parser.add_argument('--data_name', type=str, default=AMAZON, choices=[AMAZON, AMAZON_STAR, LAST_FM, LAST_FM_STAR, YELP, YELP_STAR],
                         help='One of {LAST_FM, LAST_FM_STAR, YELP, YELP_STAR, AMAZON, AMAZON_STAR}.')
-    parser.add_argument('--domain', type=str, default='Office_Products', choices=['Office_Products','Electronics', 'Sports_and_Outdoors', 'Clothing_Shoes_and_Jewelry'],
-                        help='One of {Office_Products, Electronics, Sports_and_Outdoors, Clothing_Shoes_and_Jewelry}.')
+    parser.add_argument('--domain', type=str, default='Office_Products', choices=['Appliances', 'Office_Products','Electronics', 'Sports_and_Outdoors', 'Clothing_Shoes_and_Jewelry'],
+                        help='One of {Appliances, Office_Products, Electronics, Sports_and_Outdoors, Clothing_Shoes_and_Jewelry}.')
     parser.add_argument('--entropy_method', type=str, default='weight_entropy', help='entropy_method is one of {entropy, weight entropy}')
     # Although the performance of 'weighted entropy' is better, 'entropy' is an alternative method considering the time cost.
     parser.add_argument('--max_turn', type=int, default=15, help='max conversation turn')
@@ -206,7 +210,7 @@ def main():
     parser.add_argument('--max_steps', type=int, default=100, help='max training steps')
     parser.add_argument('--eval_num', type=int, default=10, help='the number of steps to evaluate RL model and metric')
     parser.add_argument('--save_num', type=int, default=10, help='the number of steps to save RL model and metric')
-    parser.add_argument('--observe_num', type=int, default=500, help='the number of steps to print metric')
+    parser.add_argument('--observe_num', type=int, default=100, help='the number of steps to print metric')
     parser.add_argument('--cand_num', type=int, default=10, help='candidate sampling number')
     parser.add_argument('--cand_item_num', type=int, default=10, help='candidate item sampling number')
     parser.add_argument('--fix_emb', action='store_false', help='fix embedding or not')
