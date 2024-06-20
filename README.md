@@ -6,10 +6,15 @@
 
 <summary>Datasets</summary>
 
-Download [Metadata Amazon dataset 2018](https://cseweb.ucsd.edu/~jmcauley/datasets/amazon_v2/)
-& [Rating Amazon dataset 2018](https://nijianmo.github.io/amazon/index.html)
+Four Amazon datasets (Amazon_Beauty, Amazon_Electronics, Amazon_Office_Products, Amazon_Home_and_Kitchen) are available in the "data_preprocess/raw_data/" directory and the split is consistent with [1].
+
+All four datasets used in this paper can be downloaded below
+-  [Metadata - Amazon dataset v2018](https://cseweb.ucsd.edu/~jmcauley/datasets/amazon_v2/)
+- [Rating - Amazon dataset v2018](https://nijianmo.github.io/amazon/index.html)
 
 ### Summary statistics of datasets.
+
+We 
 Following ScomGNN, filter categories more than 4 categories & pricing is not empty
 Here's the updated table with the new columns added:
 
@@ -134,7 +139,7 @@ feature_dict.json
 }
 ```
 
-```
+```bash
 first-layer_merged_tag_map.json
 {
     "categories#1" : 0,
@@ -143,7 +148,7 @@ first-layer_merged_tag_map.json
 }
 ```
 
-```
+```bash
 second-layer_oringinal_tag_map.json
 {
     "type#1" : 0,
@@ -152,7 +157,7 @@ second-layer_oringinal_tag_map.json
 }
 ```
 
-```
+```bash
 2-layer taxonomy.json
 {
     "Categories#1": [TypeA, TypeB, TypeC],
@@ -167,12 +172,30 @@ second-layer_oringinal_tag_map.json
 pip install -r requirements.txt
 ```
 
-## Training
+## How to run the code
+
+### TransE Embedding
 ```bash
-python3 RL_model.py --data_name AMAZON --domain Office_Products --max_steps 1 --sample_times 1 
 ```
-## Evaluation
+
+### Training
 ```bash
-python3 evaluate.py --data_name AMAZON --load_rl_epoch 10
+python3 RL_model.py --data_name AMAZON --domain Appliances --max_steps 10 --sample_times 1 
+```
+### Evaluation
+```bash
+python3 evaluate.py --data_name AMAZON --domain Appliances --load_rl_epoch 10
 ```
 ## Citation
+```bash
+```
+
+
+## References
+[1] Yongfeng Zhang, Qingyao Ai, Xu Chen, W. Bruce Croft. "Joint Representation Learning for Top-N Recommendation with Heterogeneous Information Sources". In Proceedings of CIKM. 2017.
+
+[2] Yikun Xian, Zuohui Fu, S. Muthukrishnan, Gerard de Melo, Yongfeng Zhang. "Reinforcement Knowledge Graph Reasoning for Explainable Recommendation." In Proceedings of SIGIR. 2019.
+
+[3] Yang Deng, Yaliang Li, Fei Sun, Bolin Ding, Wai Lam. "Unified Conversational Recommendation Policy Learning via Graph-based Reinforcement Learning." arXiv preprint arXiv:2105.09710, 2021.
+
+[4] Jibril Frej, Marta Knezevic, Tanja Kaser. "Graph Reasoning for Explainable Cold Start Recommendation." arXiv preprint arXiv:2406.07420, 2024.
