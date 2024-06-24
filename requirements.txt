@@ -1,7 +1,9 @@
+easydict
+tensorboard
+wandb
 numpy
 pandas 
-pickle
 tqdm
 easydict
 torch
-transformer
+transformers

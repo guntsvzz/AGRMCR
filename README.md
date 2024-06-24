@@ -66,10 +66,18 @@ Four Amazon datasets (Amazon_Beauty, Amazon_CDs, Amazon_Cellphones, Amazon_Cloth
 <details>
 <summary>Preprocessing dataset </summary>
 
+
 ```bash
-python3 index_and_filter_review_file.py
-python3 match_cate_brand_related.py
+source JRL/preprocessing_data.sh
 ```
+
+```bash
+python3 JRL/scripts/ndex_and_filter_review_file.py
+python3 JRL/scripts/split_train_test.py
+gzip -d *.txt.gz
+python3 JRL/scripts/match_cate_brand_related.py
+```
+
 ### 1. `index_and_filter_review_file.py `
 
 This script processes the review data to generate various entity files.
@@ -81,7 +89,11 @@ This script processes the review data to generate various entity files.
 - `review_u_p.txt`: Maps reviews to users and products.
 - `review_id.txt`: Contains unique review IDs.
 
-### 2. `match_cate_brand_related.py`
+### 2. `split_train_test.py`
+
+### 3. `gzip -d *.txt.gz`
+
+### 4. `match_cate_brand_related.py`
 
 This script processes the data to generate relation files, which describe various relationships between entities such as products, brands, and categories.
 #### Generated Files:

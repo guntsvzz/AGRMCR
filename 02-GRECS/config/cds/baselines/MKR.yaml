@@ -1,0 +1,38 @@
+data_path: data/cds/
+dataset: Amazon_CDs_01_01
+checkpoint_dir: data/cds/Amazon_CDs_01_01/saved/
+results_dir: results/frej/Amazon_CDs_01_01/
+benchmark_filename: ['train', 'validation', 'test']
+
+gpu_id: -1
+
+model: MKR
+
+run_num: 3
+
+embedding_size: 100
+kg_embedding_size: 100
+
+# Training config
+epochs: 50
+train_batch_size: 512
+eval_batch_size: 512
+learner: adam 
+learning_rate: 0.001
+weight_decay: 0.0
+eval_step: 1
+stopping_step : 10
+train_neg_sample_args:
+    uniform: 1
+
+eval_args:
+    mode: full
+metrics: ['MRR', 'NDCG', 'Hit', 'Precision', 'Recall']
+topk: [1, 3, 5, 10, 20]
+valid_metric: Hit@10
+metric_decimal_place: 4
+
+log_wandb: False
+wandb_project: recbole
+
+seed: 4
