@@ -281,21 +281,6 @@ echo "--------------------------------------------------------"
 </details>
 
 <details>
-<summary>Transitional Embedding (TransE) [3]</summary>
-
-```bash
-python3 src/graph_reasoning/train_transe_model.py \
-    --config config/beauty/graph_reasoning/UPGPR.json
-python3 src/graph_reasoning/train_transe_model.py \
-    --config config/cds/graph_reasoning/UPGPR.json
-python3 src/graph_reasoning/train_transe_model.py \
-    --config config/cellphones/graph_reasoning/UPGPR.json
-python3 src/graph_reasoning/train_transe_model.py \
-    --config config/clothing/graph_reasoning/UPGPR.json
-```
-</details>
-
-<details>
 <summary>Description</summary>
 
 ### 1. `preprocess/domain.py`
