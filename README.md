@@ -13,10 +13,7 @@ pip install -r requirements.txt
 
 Four Amazon datasets (Amazon_Beauty, Amazon_CDs, Amazon_Cellphones, Amazon_Clothing) are available in the "JRL/raw_data/" directory and the split is consistent with [1] and [2].
 
-All four datasets used in this paper can be downloaded below
-- [Metadata & Review-5-core v2014](https://cseweb.ucsd.edu/~jmcauley/datasets/amazon/links.html)
-- [Metadata - Amazon dataset v2018](https://cseweb.ucsd.edu/~jmcauley/datasets/amazon_v2/)
-- [Review-5-core - Amazon dataset v2018](https://nijianmo.github.io/amazon/index.html)
+All four datasets used in this paper can be downloaded here. [Metadata & Review-5-core v2014](https://cseweb.ucsd.edu/~jmcauley/datasets/amazon/links.html)
 
 ### Summary statistics of datasets.
 
