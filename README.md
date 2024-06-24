@@ -313,23 +313,23 @@ This script will evaluate RL policy network. Given $p_0$, the agent will decide 
 While the agent can navigate the Knowledge Graph (KG) from a cold user (or to a cold item) via their integration in the KG, it needs meaningful embeddings in its state representation to take an action that will lead to a relevant recommendation. To this end, [7] propose to calculate the embedding for a new entity by using the `average translations` from its related entities:
 
 $$
-\boldsymbol{e} = \sum_{(r', e'_t) \in \mathcal{G}_{e}} \left(\boldsymbol{e'_t} - \boldsymbol{r'}\right)/|\mathcal{G}_{e}|
+\textbf{e} = \sum_{(r', e'_t) \in \mathcal{G}_{e}} \left(\textbf{e'}_t - \textbf{r'}\right)/|\mathcal{G}_{e}|
 $$
 
 where $\mathcal{G}_{e}$ is the subset of all triplets in $\mathcal{G}$ whose head entity is $e$. This choice is motivated by the KG embeddings being trained using a translation method as described below:
 
 $$
-f(e_h, e_t | r) = <\boldsymbol{e_h} + \boldsymbol{r}, \boldsymbol{e_t}> + b_{e_t}
+f(e_h, e_t | r) = <{\textbf{e}_h} + \textbf{r}, \textbf{e}_t> + b_{e_t}
 $$
 
-where $\boldsymbol{e_h}, \boldsymbol{r}, \boldsymbol{e_t}$ are the embeddings of $e_h, r$ and $e_t$ respectively and $b_{e_t}$ is the bias of $e_t$.
+where $\textbf{e}_h, \textbf{r}, \text{e}_t$ are the embeddings of $e_h, r$ and $e_t$ respectively and $b_{e_t}$ is the bias of $e_t$.
 
 #### Positive/Negative Translations
 Given pairs $(r', e'_t)$ where $r$ could be actions like "purchase", "mention", "interested", "like", or negative actions like "don't like", "don't interested", and $e_t$ could be associated items, categories, or brands, it compute a weighted average of these pairs.
 
 Let's denote the weight of each pair $(r', e'_t)$ as $w_{r', e'_t}$. If $w_{r', e'_t} = 1$ for `positive pairs` and $-1$ for `negative pairs`, the modified equation could be:
 
-$$ \boldsymbol{e} = \frac{\sum_{(r', e'_t) \in \mathcal{G}_{e}} w_{r', e'_t} \cdot (\boldsymbol{e'_t} - \boldsymbol{r'})}{|\mathcal{G}_{e}|} $$
+$$ \textbf{e} = \frac{\sum_{(r', e'_t) \in \mathcal{G}_{e}} w_{r', e'_t} \cdot (\boldsymbol{e'_t} - \boldsymbol{r'})}{|\mathcal{G}_{e}|} $$
 Where
 - $ \mathcal{G}_{e}$ is still the set of pairs $(r, e_t)$.
 - $ \boldsymbol{e_t} $ represents the vector associated with $e_t$.
