@@ -65,12 +65,6 @@ All four datasets used in this paper can be downloaded below
 
 </details>
 
-<details>
-
-<summary> Graph Formating </summary>
-
-</details>
-
 ## How to run the code
 
 ## JRL - Preprocessing dataset
