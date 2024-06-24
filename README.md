@@ -175,12 +175,21 @@ second-layer_oringinal_tag_map.json
 ## How to run the code
 
 ## JRL
+
+<details>
+<summary>Preprocessing</summary>
+
 ```bash
 python3 index_and_filter_review_file.py
 python3 match_cate_brand_related.py
 ```
+</details>
 
 ## GRECS
+
+<details>
+<summary>Graph construction</summary>
+
 ### Preprocessing Dataset
 ```bash
 python3 src/preprocess/beauty.py \
@@ -205,6 +214,12 @@ python3 src/graph_reasoning/make_dataset.py \
     --config config/clothing/graph_reasoning/UPGPR.json
 ```
 
+</details>
+
+<details>
+
+<summary>TransE Embedding</summary>
+
 ### TransE Embedding
 ```bash
 python3 src/graph_reasoning/train_transe_model.py \
@@ -216,7 +231,10 @@ python3 src/graph_reasoning/train_transe_model.py \
 python3 src/graph_reasoning/train_transe_model.py \
     --config config/clothing/graph_reasoning/UPGPR.json
 ```
+</details>
 
+<details>
+<summary>Train & Evaluation RL agent</summary>
 ### Train RL 
 ```bash
 python3 src/graph_reasoning/train_agent.py \
@@ -242,8 +260,13 @@ python3 src/graph_reasoning/test_agent.py \
 python3 src/graph_reasoning/test_agent.py \
     --config config/coco/graph_reasoning/UPGPR.json
 ```
+</details>
 
 ## UNICORN
+
+<details>
+<summary>Train & Evaluation RL agent</summary>
+
 ### Training
 ```bash
 python3 RL_model.py --data_name AMAZON --domain beauty --max_steps 10 --sample_times 1 
@@ -259,6 +282,8 @@ python3 evaluate.py --data_name AMAZON --domain Appliances --load_rl_epoch 10
 python3 evaluate.py --data_name AMAZON --domain cellphones --load_rl_epoch 10
 python3 evaluate.py --data_name AMAZON --domain clothing --load_rl_epoch 10
 ```
+
+</details>
 
 ## Citation
 Todsavad Tangtortan. 2024.Adapting Graph Reasoning for Explainable Cold Start Recommendation on Multi-Round Conversation Recommendation (AGRMCR). AIT, Thailand.
