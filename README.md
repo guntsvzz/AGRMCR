@@ -278,30 +278,6 @@ echo "Duration: $(($duration / 3600)) hr $((($duration % 3600) / 60)) min $(($du
 echo "--------------------------------------------------------"
 ```
 
-### Preprocessing Dataset
-```bash
-python3 src/preprocess/beauty.py \
-    --config config/beauty/graph_reasoning/preprocess.json
-python3 src/preprocess/cds.py \
-    --config config/cds/graph_reasoning/preprocess.json
-python3 src/preprocess/cellphones.py \
-    --config config/cellphones/graph_reasoning/preprocess.json
-python3 src/preprocess/clothing.py \
-    --config config/clothing/graph_reasoning/preprocess.json
-```
-
-### Make Dataset
-```bash
-python3 src/graph_reasoning/make_dataset.py \
-    --config config/beauty/graph_reasoning/UPGPR.json
-python3 src/graph_reasoning/make_dataset.py \
-    --config config/cds/graph_reasoning/UPGPR.json
-python3 src/graph_reasoning/make_dataset.py \
-    --config config/cellphones/graph_reasoning/UPGPR.json
-python3 src/graph_reasoning/make_dataset.py \
-    --config config/clothing/graph_reasoning/UPGPR.json
-```
-
 </details>
 
 <details>
@@ -316,36 +292,6 @@ python3 src/graph_reasoning/train_transe_model.py \
     --config config/cellphones/graph_reasoning/UPGPR.json
 python3 src/graph_reasoning/train_transe_model.py \
     --config config/clothing/graph_reasoning/UPGPR.json
-```
-</details>
-
-<details>
-<summary>Train & Evaluation RL agent</summary>
-
-### Train RL 
-```bash
-python3 src/graph_reasoning/train_agent.py \
-    --config config/beauty/graph_reasoning/UPGPR.json
-python3 src/graph_reasoning/train_agent.py \
-    --config config/cds/graph_reasoning/UPGPR.json
-python3 src/graph_reasoning/train_agent.py \
-    --config config/cellphones/graph_reasoning/UPGPR.json
-python3 src/graph_reasoning/train_agent.py \
-    --config config/clothing/graph_reasoning/UPGPR.json
-```
-
-### Evaluation
-```bash
-python3 src/graph_reasoning/test_agent.py \
-    --config config/beauty/graph_reasoning/UPGPR.json
-python3 src/graph_reasoning/test_agent.py \
-    --config config/cds/graph_reasoning/UPGPR.json
-python3 src/graph_reasoning/test_agent.py \
-    --config config/cellphones/graph_reasoning/UPGPR.json
-python3 src/graph_reasoning/test_agent.py \
-    --config config/clothing/graph_reasoning/UPGPR.json
-python3 src/graph_reasoning/test_agent.py \
-    --config config/coco/graph_reasoning/UPGPR.json
 ```
 </details>
 
@@ -372,6 +318,10 @@ This script processes the purchase.txt to generate pair(user,item) of train/test
 - `test_dataset.pkl`        :
 - `valiation_dataset.pkl`   :
 - `kg.pkl`                  :
+
+### 3. Transitional Embedding (TransE) [3]
+
+### 4. Train & Evaluation RL agent 
 
 </details>
 
@@ -427,40 +377,16 @@ echo "----------------------------------------------------------"
 
 ```
 
-### Training
-```bash
-python3 RL_model.py \
-    --data_name AMAZON --data_name BEAUTY --domain beauty --max_steps 100 --sample_times 100 --embed transe
-python3 RL_model.py \
-    --data_name AMAZON --data_name CDS --domain cds --max_steps 100 --sample_times 100 --embed transe
-python3 RL_model.py \
-    --data_name AMAZON --data_name CELLPHONES --domain cellphones --max_steps 100 --sample_times 100 --embed transe
-python3 RL_model.py \
-    --data_name AMAZON --data_name CLOTHING --domain clothing --max_steps 100 --sample_times 100 --embed transe
-```
-
-### Evaluation
-```bash
-python3 evaluate.py \
-    --data_name AMAZON --data_name BEAUTY --domain beauty --load_rl_epoch 10 --embed transe
-python3 evaluate.py \
-    --data_name AMAZON --data_name CDS --domain cds --load_rl_epoch 10 --embed transe
-python3 evaluate.py \
-    --data_name AMAZON --data_name CELLPHONES --domain cellphones --load_rl_epoch 10 --embed transe
-python3 evaluate.py     \
-    --data_name AMAZON --data_name CLOTHING --domain clothing --load_rl_epoch 10 --embed transe
-```
-
 </details>
 
 <details>
 <summary> Description </summary>
 
-### 1. `RL_model.py`
+### Step 1 : Training RL Agent `RL_model.py`
 
 This script will train RL policy network. Given $p_0$, the agent will decide which items to recommend.
 
-### 2. `evaluate.py`
+### Step 2 : Evaluation RL Agent`evaluate.py`
 
 This script will evaluate RL policy network. Given $p_0$, the agent will decide which items to recommend
 
