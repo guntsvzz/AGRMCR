@@ -195,15 +195,25 @@ python3 evaluate.py     \
 
 
 ## Ablation Study
-<details>
 
-1. Does past history of other user preferences in the form of graph improve the success rate of recommendation ?
+<details>
+<summary>Past History in the form of graph</summary>
+
+**Does past history of other user preferences in the form of graph improve the success rate of recommendation ?**
 
 ### User-similarity
 
-2. How can we best initialize the embedding of new user by utilizing other similar users?
-### Cold Embeddings for User
-While the agent can navigate the Knowledge Graph (KG) from a cold user (or to a cold item) via their integration in the KG, it needs meaningful embeddings in its state representation to take an action that will lead to a relevant recommendation. To this end, we propose to calculate the embedding for a new entity by using the average translations from its related entities:
+</details>
+
+<details>
+<summary>Initialize Embedding</summary>
+
+**How can we best initialize the embedding of new user by utilizing other similar users?**
+
+### Cold Embeddings for Users/Items
+
+#### Average Translations
+While the agent can navigate the Knowledge Graph (KG) from a cold user (or to a cold item) via their integration in the KG, it needs meaningful embeddings in its state representation to take an action that will lead to a relevant recommendation. To this end, we propose to calculate the embedding for a new entity by using the **average translations** from its related entities:
 
 $$
 \boldsymbol{e} = \sum_{(r', e'_t) \in \mathcal{G}_{e}} \left(\boldsymbol{e'_t} - \boldsymbol{r'}\right)/|\mathcal{G}_{e}|
@@ -219,9 +229,29 @@ where $\boldsymbol{e_h}, \boldsymbol{r}, \boldsymbol{e_t}$ are the embeddings of
 
 To evaluate our cold embeddings assignment strategy, we will also compare it to using null embeddings (zero values everywhere) that correspond to no prior knowledge about users or items. In the following sections, we denote models using the average translation embeddings as `PGPR_a`/`UPGPR_a`, null embeddings as `PGPR_0`/`UPGPR_0`, and both methods regardless of the embeddings as `PGPR`/`UPGPR`.
 
+#### Negative-pair
+Given pairs $(r, e_t)$ where $r$ could be actions like "purchase", "mention", "interested", "like", or negative actions like "don't like", "don't interested", and $e_t$ could be associated items, categories, or brands, it compute a weighted average of these pairs.
 
+Let's denote the weight of each pair $(r', e'_t)$ as $w_{r', e'_t}$. If $w_{r', e'_t} = 1$ for **positive pairs** and $-1$ for **negative pairs**, the modified equation could be:
 
-3. Overall, how does our technique compare to SOTA techniques?
+$$ \boldsymbol{e} = \frac{\sum_{(r', e'_t) \in \mathcal{G}_{e}} w_{r', e'_t} \cdot (\boldsymbol{e_t} - \boldsymbol{r})}{|\mathcal{G}_{e}|} $$
+
+Here’s the breakdown:
+
+- \( \mathcal{G}_{e} \) is still the set of pairs \((r, e_t)\).
+- \( \boldsymbol{e_t} \) represents the vector associated with \(e_t\).
+- \( \boldsymbol{r} \) represents the vector associated with \(r\).
+- \( w_{r, e_t} \) is the weight assigned to each pair, where \( w_{r, e_t} = 1 \) for positive pairs like \((purchase, item)\), \((mention, item)\), etc., and \( w_{r, e_t} = -1 \) for negative pairs like \((dont like, brand)\), \((dont interested, category)\).
+
+This modification allows you to adjust the contribution of each pair based on whether it is positive or negative, while still computing an average vector \(\boldsymbol{e}\) that reflects the relationships captured by your pairs \((r, e_t)\).
+
+</details>
+
+<details>
+<summary>Comparing SOTA techniques</summary>
+
+**Overall, how does our technique compare to SOTA techniques?**
+
 ### Run the baselines
 
 To run a baseline on Beauty, choose a yaml config file in config/beauty/baselines and run the following:
