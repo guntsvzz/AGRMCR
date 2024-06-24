@@ -230,20 +230,22 @@ where $\boldsymbol{e_h}, \boldsymbol{r}, \boldsymbol{e_t}$ are the embeddings of
 To evaluate our cold embeddings assignment strategy, we will also compare it to using null embeddings (zero values everywhere) that correspond to no prior knowledge about users or items. In the following sections, we denote models using the average translation embeddings as `PGPR_a`/`UPGPR_a`, null embeddings as `PGPR_0`/`UPGPR_0`, and both methods regardless of the embeddings as `PGPR`/`UPGPR`.
 
 #### Negative-pair
-Given pairs $(r, e_t)$ where $r$ could be actions like "purchase", "mention", "interested", "like", or negative actions like "don't like", "don't interested", and $e_t$ could be associated items, categories, or brands, it compute a weighted average of these pairs.
+Given pairs $(r', e'_t)$ where $r$ could be actions like "purchase", "mention", "interested", "like", or negative actions like "don't like", "don't interested", and $e_t$ could be associated items, categories, or brands, it compute a weighted average of these pairs.
 
 Let's denote the weight of each pair $(r', e'_t)$ as $w_{r', e'_t}$. If $w_{r', e'_t} = 1$ for **positive pairs** and $-1$ for **negative pairs**, the modified equation could be:
 
-$$ \boldsymbol{e} = \frac{\sum_{(r', e'_t) \in \mathcal{G}_{e}} w_{r', e'_t} \cdot (\boldsymbol{e_t} - \boldsymbol{r})}{|\mathcal{G}_{e}|} $$
+$$ \boldsymbol{e} = \frac{\sum_{(r', e'_t) \in \mathcal{G}_{e}} w_{r', e'_t} \cdot (\boldsymbol{e'_t} - \boldsymbol{r'})}{|\mathcal{G}_{e}|} $$
 
-Here’s the breakdown:
+Where
 
-- \( \mathcal{G}_{e} \) is still the set of pairs \((r, e_t)\).
-- \( \boldsymbol{e_t} \) represents the vector associated with \(e_t\).
-- \( \boldsymbol{r} \) represents the vector associated with \(r\).
-- \( w_{r, e_t} \) is the weight assigned to each pair, where \( w_{r, e_t} = 1 \) for positive pairs like \((purchase, item)\), \((mention, item)\), etc., and \( w_{r, e_t} = -1 \) for negative pairs like \((dont like, brand)\), \((dont interested, category)\).
+- $ \mathcal{G}_{e}$ is still the set of pairs \((r, e_t)\).
+- $ \boldsymbol{e_t} $ represents the vector associated with $e_t$.
+- $ \boldsymbol{r} $ represents the vector associated with \(r\).
+- $ w_{r, e_t} $ is the weight assigned to each pair, where $ w_{r, e_t} = 1 $ for positive pairs like $(purchase, item)$, $(mention, item)$, etc.
+- $ w_{r, e_t} = -1 $ for negative pairs like $(disike, brand)$, $(disinterested, category)$.
 
-This modification allows you to adjust the contribution of each pair based on whether it is positive or negative, while still computing an average vector \(\boldsymbol{e}\) that reflects the relationships captured by your pairs \((r, e_t)\).
+This modification allows you to adjust the contribution of each pair based on whether it is positive or negative, while still computing an average vector $\boldsymbol{e}$ that reflects the relationships captured by your pairs $(r', e'_t)$.
+
 
 </details>
 
