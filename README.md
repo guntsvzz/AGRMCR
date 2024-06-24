@@ -235,6 +235,7 @@ python3 src/graph_reasoning/train_transe_model.py \
 
 <details>
 <summary>Train & Evaluation RL agent</summary>
+
 ### Train RL 
 ```bash
 python3 src/graph_reasoning/train_agent.py \
