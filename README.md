@@ -1,5 +1,10 @@
 # AGRMCR - Adapting Graph Reasoning for Explainable Cold Start Recommendation on Multi-Round Conversation Recommendation
 
+## Requirement 
+```bash
+pip install -r requirements.txt
+```
+
 ## Data Preparation
 
 <details>
@@ -167,35 +172,106 @@ second-layer_oringinal_tag_map.json
 
 </details>
 
-## Requirement 
+## How to run the code
+
+## JRL
 ```bash
-pip install -r requirements.txt
+python3 index_and_filter_review_file.py
+python3 match_cate_brand_related.py
 ```
 
-## How to run the code
+## GRECS
+### Preprocessing Dataset
+```bash
+python3 src/preprocess/beauty.py \
+    --config config/beauty/graph_reasoning/preprocess.json
+python3 src/preprocess/cds.py \
+    --config config/cds/graph_reasoning/preprocess.json
+python3 src/preprocess/cellphones.py \
+    --config config/cellphones/graph_reasoning/preprocess.json
+python3 src/preprocess/clothing.py \
+    --config config/clothing/graph_reasoning/preprocess.json
+```
+
+### Make Dataset
+```bash
+python3 src/graph_reasoning/make_dataset.py \
+    --config config/beauty/graph_reasoning/UPGPR.json
+python3 src/graph_reasoning/make_dataset.py \
+    --config config/cds/graph_reasoning/UPGPR.json
+python3 src/graph_reasoning/make_dataset.py \
+    --config config/cellphones/graph_reasoning/UPGPR.json
+python3 src/graph_reasoning/make_dataset.py \
+    --config config/clothing/graph_reasoning/UPGPR.json
+```
 
 ### TransE Embedding
 ```bash
+python3 src/graph_reasoning/train_transe_model.py \
+    --config config/beauty/graph_reasoning/UPGPR.json
+python3 src/graph_reasoning/train_transe_model.py \
+    --config config/cds/graph_reasoning/UPGPR.json
+python3 src/graph_reasoning/train_transe_model.py \
+    --config config/cellphones/graph_reasoning/UPGPR.json
+python3 src/graph_reasoning/train_transe_model.py \
+    --config config/clothing/graph_reasoning/UPGPR.json
 ```
 
-### Training
+### Train RL 
 ```bash
-python3 RL_model.py --data_name AMAZON --domain Appliances --max_steps 10 --sample_times 1 
+python3 src/graph_reasoning/train_agent.py \
+    --config config/beauty/graph_reasoning/UPGPR.json
+python3 src/graph_reasoning/train_agent.py \
+    --config config/cds/graph_reasoning/UPGPR.json
+python3 src/graph_reasoning/train_agent.py \
+    --config config/cellphones/graph_reasoning/UPGPR.json
+python3 src/graph_reasoning/train_agent.py \
+    --config config/clothing/graph_reasoning/UPGPR.json
 ```
+
 ### Evaluation
 ```bash
-python3 evaluate.py --data_name AMAZON --domain Appliances --load_rl_epoch 10
-```
-## Citation
-```bash
+python3 src/graph_reasoning/test_agent.py \
+    --config config/beauty/graph_reasoning/UPGPR.json
+python3 src/graph_reasoning/test_agent.py \
+    --config config/cds/graph_reasoning/UPGPR.json
+python3 src/graph_reasoning/test_agent.py \
+    --config config/cellphones/graph_reasoning/UPGPR.json
+python3 src/graph_reasoning/test_agent.py \
+    --config config/clothing/graph_reasoning/UPGPR.json
+python3 src/graph_reasoning/test_agent.py \
+    --config config/coco/graph_reasoning/UPGPR.json
 ```
 
+## UNICORN
+### Training
+```bash
+python3 RL_model.py --data_name AMAZON --domain beauty --max_steps 10 --sample_times 1 
+python3 RL_model.py --data_name AMAZON --domain cds --max_steps 10 --sample_times 1 
+python3 RL_model.py --data_name AMAZON --domain cellphones --max_steps 10 --sample_times 1 
+python3 RL_model.py --data_name AMAZON --domain clothing --max_steps 10 --sample_times 1 
+```
+
+### Evaluation
+```bash
+python3 evaluate.py --data_name AMAZON --domain beauty --load_rl_epoch 10
+python3 evaluate.py --data_name AMAZON --domain Appliances --load_rl_epoch 10
+python3 evaluate.py --data_name AMAZON --domain cellphones --load_rl_epoch 10
+python3 evaluate.py --data_name AMAZON --domain clothing --load_rl_epoch 10
+```
+
+## Citation
+Todsavad Tangtortan. 2024.Adapting Graph Reasoning for Explainable Cold Start Recommendation on Multi-Round Conversation Recommendation (AGRMCR). AIT, Thailand.
 
 ## References
-[1] Yongfeng Zhang, Qingyao Ai, Xu Chen, W. Bruce Croft. "Joint Representation Learning for Top-N Recommendation with Heterogeneous Information Sources". In Proceedings of CIKM. 2017.
+[1] Yongfeng Zhang, Qingyao Ai, Xu Chen, and W. Bruce Croft. 2017. Joint Representation Learning for Top-N Recommendation with Heterogeneous Information Sources. In Proceedings of the 2017 ACM on Conference on Information and Knowledge Management (CIKM '17). Association for Computing Machinery, New York, NY, USA, 1449–1458. https://doi.org/10.1145/3132847.3132892
 
-[2] Yikun Xian, Zuohui Fu, S. Muthukrishnan, Gerard de Melo, Yongfeng Zhang. "Reinforcement Knowledge Graph Reasoning for Explainable Recommendation." In Proceedings of SIGIR. 2019.
+[2] Yukuo Cen, Jianwei Zhang, Xu Zou, Chang Zhou, Hongxia Yang, and Jie Tang. 2020. Controllable Multi-Interest Framework for Recommendation. In Proceedings of the 26th ACM SIGKDD International Conference on Knowledge Discovery & Data Mining (KDD '20). Association for Computing Machinery, New York, NY, USA, 2942–2951. https://doi.org/10.1145/3394486.3403344
 
-[3] Yang Deng, Yaliang Li, Fei Sun, Bolin Ding, Wai Lam. "Unified Conversational Recommendation Policy Learning via Graph-based Reinforcement Learning." arXiv preprint arXiv:2105.09710, 2021.
+[3] Yang Deng, Yaliang Li, Fei Sun, Bolin Ding, and Wai Lam. 2021. Unified Conversational Recommendation Policy Learning via Graph-based Reinforcement Learning. In Proceedings of the 44th International ACM SIGIR Conference on Research and Development in Information Retrieval (SIGIR '21). Association for Computing Machinery, New York, NY, USA, 1431–1441. https://doi.org/10.1145/3404835.3462913
 
-[4] Jibril Frej, Marta Knezevic, Tanja Kaser. "Graph Reasoning for Explainable Cold Start Recommendation." arXiv preprint arXiv:2406.07420, 2024.
+[4] Yikun Xian, Zuohui Fu, S. Muthukrishnan, Gerard de Melo, and Yongfeng Zhang. 2019. Reinforcement Knowledge Graph Reasoning for Explainable Recommendation. In Proceedings of the 42nd International ACM SIGIR Conference on Research and Development in Information Retrieval (SIGIR'19). Association for Computing Machinery, New York, NY, USA, 285–294. https://doi.org/10.1145/3331184.3331203
+
+[5] Jibril Frej, Neel Shah, Marta Knezevic, Tanya Nazaretsky, and Tanja Käser. 2024. Finding Paths for Explainable MOOC Recommendation: A Learner Perspective. In Proceedings of the 14th Learning Analytics and Knowledge Conference (LAK '24). Association for Computing Machinery, New York, NY, USA, 426–437. https://doi.org/10.1145/3636555.3636898
+
+[6] Jibril Frej, Marta Knezevic, Tanja Kaser. "Graph Reasoning for Explainable Cold Start Recommendation." arXiv preprint arXiv:2406.07420, 2024.
