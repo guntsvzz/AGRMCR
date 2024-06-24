@@ -119,7 +119,7 @@ python3 src/graph_reasoning/make_dataset.py \
 
 <summary>TransE Embedding</summary>
 
-### TransE Embedding
+### Transitaitonal Embedding (TransE) 
 ```bash
 python3 src/graph_reasoning/train_transe_model.py \
     --config config/beauty/graph_reasoning/UPGPR.json
