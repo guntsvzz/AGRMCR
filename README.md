@@ -248,7 +248,7 @@ python3 evaluate.py     \
 ### Cold Embeddings for Users/Items
 
 #### Average Translations
-While the agent can navigate the Knowledge Graph (KG) from a cold user (or to a cold item) via their integration in the KG, it needs meaningful embeddings in its state representation to take an action that will lead to a relevant recommendation. To this end, we propose to calculate the embedding for a new entity by using the **average translations** from its related entities:
+While the agent can navigate the Knowledge Graph (KG) from a cold user (or to a cold item) via their integration in the KG, it needs meaningful embeddings in its state representation to take an action that will lead to a relevant recommendation. To this end, we propose to calculate the embedding for a new entity by using the `average translations` from its related entities:
 
 $$
 \boldsymbol{e} = \sum_{(r', e'_t) \in \mathcal{G}_{e}} \left(\boldsymbol{e'_t} - \boldsymbol{r'}\right)/|\mathcal{G}_{e}|
@@ -265,7 +265,7 @@ where $\boldsymbol{e_h}, \boldsymbol{r}, \boldsymbol{e_t}$ are the embeddings of
 #### Pos-Neg-Translations
 Given pairs $(r', e'_t)$ where $r$ could be actions like "purchase", "mention", "interested", "like", or negative actions like "don't like", "don't interested", and $e_t$ could be associated items, categories, or brands, it compute a weighted average of these pairs.
 
-Let's denote the weight of each pair $(r', e'_t)$ as $w_{r', e'_t}$. If $w_{r', e'_t} = 1$ for **positive pairs** and $-1$ for **negative pairs**, the modified equation could be:
+Let's denote the weight of each pair $(r', e'_t)$ as $w_{r', e'_t}$. If $w_{r', e'_t} = 1$ for `positive pairs` and $-1$ for `negative pairs`, the modified equation could be:
 
 $$ \boldsymbol{e} = \frac{\sum_{(r', e'_t) \in \mathcal{G}_{e}} w_{r', e'_t} \cdot (\boldsymbol{e'_t} - \boldsymbol{r'})}{|\mathcal{G}_{e}|} $$
 
@@ -280,7 +280,7 @@ Where
 This modification allows you to adjust the contribution of each pair based on whether it is positive or negative, while still computing an average vector $\boldsymbol{e}$ that reflects the relationships captured by your pairs $(r', e'_t)$.
 
 #### Null embeddings
-To evaluate our cold embeddings assignment strategy, we will also compare it to using **null embeddings** (zero values everywhere) that correspond to no prior knowledge about users or items. In the following sections, we denote models using the average translation embeddings as `PGPR_a`/`UPGPR_a`, null embeddings as `PGPR_0`/`UPGPR_0`, negative embeddings as `PGPR_n`/`UPGPR_n`, and these methods regardless of the embeddings as `PGPR`/`UPGPR`.
+To evaluate our cold embeddings assignment strategy, we will also compare it to using `null embeddings` (zero values everywhere) that correspond to no prior knowledge about users or items. In the following sections, we denote models using the average translation embeddings as `PGPR_a`/`UPGPR_a`, null embeddings as `PGPR_0`/`UPGPR_0`, negative embeddings as `PGPR_n`/`UPGPR_n`, and these methods regardless of the embeddings as `PGPR`/`UPGPR`.
 
 </details>
 
@@ -291,18 +291,20 @@ To evaluate our cold embeddings assignment strategy, we will also compare it to 
 
 ### User-similarity
 
-- Graph from MCR : calculate new user embedding $e_{new}$ from last state which consist of $s_t = [\mathcal{H}_u^{(t)},\mathcal{G}_u^{(t)}]$ where $\mathcal{H}_u^{(t)} = [\mathcal{P}_u^{(t)}, \mathcal{P}_{\mathrm{rej}}^{(t)}, \mathcal{V}_{\mathrm{rej}}^{(t)}]$ denotes the conversation history until timestep $t$, and $\mathcal{G}_u^{(t)}$ denotes the dynamic subgraph of $\mathcal{G}$ for the user $u$ at  timestep $t$
+- `Graph from MCR` : calculate new user embedding $e_{new}$ from last state which consist of $s_t = [\mathcal{H}_u^{(t)},\mathcal{G}_u^{(t)}]$ 
+  - $\mathcal{H}_u^{(t)} = [\mathcal{P}_u^{(t)}, \mathcal{P}_{\mathrm{rej}}^{(t)}, \mathcal{V}_{\mathrm{rej}}^{(t)}]$ denotes the conversation history until timestep $t$ 
+  - $\mathcal{G}_u^{(t)}$ denotes the dynamic subgraph of $\mathcal{G}$ for the user $u$ at timestep $t$
   - $\mathcal{P}_u$ denotes the user-preferred attribute. 
   - $\mathcal{P}_{\mathrm{rej}}$ is the attributes rejected by the user 
   - $\mathcal{V}_{\mathrm{rej}}$ are the attributes rejected by the user
 
-- Graph Past history of existing user : calculate all users $ \textbf{e}_\textbf{U} $
+- `Graph Past history of existing user` : calculate all users $ \textbf{e}_\textbf{U} $
 
 - Similarity function : $ argmax(f(e_{new}, \textbf{e}_\textbf{U}))$ where $f(e_{\text{new}}, \textbf{e}_\textbf{U}) \in [0, 1] $
 
-- Generating Graph Reasoning (GR): 
+- `Generating Graph Reasoning (GR)`: 
 
-- Trim : After obtaining GR of $e_u$, we eliminate the nodes which are $\mathcal{P}_{\mathrm{rej}}$ and $\mathcal{V}_{\mathrm{rej}}$ 
+- `Trim` : After obtaining GR of $e_u$, we eliminate the nodes which are $\mathcal{P}_{\mathrm{rej}}$ and $\mathcal{V}_{\mathrm{rej}}$ 
 </details>
 
 <details>
