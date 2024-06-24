@@ -174,6 +174,110 @@ source GRECS/run_grec.sh
 <details>
 <summary> Details code </summary>
 
+```bash
+echo "------------- step 1: Preprocessing --------------"
+start=$(date +%s)
+echo "Start time: $(date)"
+python3 src/preprocess/cell_phones.py \
+    --config config/cell_phones/graph_reasoning/preprocess.json
+
+# python3 src/preprocess/beauty.py \
+#     --config config/beauty/graph_reasoning/preprocess.json
+# python3 src/preprocess/cds.py \
+#     --config config/cds/graph_reasoning/preprocess.json
+# python3 src/preprocess/cellphones.py \
+#     --config config/cellphones/graph_reasoning/preprocess.json
+# python3 src/preprocess/clothing.py \
+#     --config config/clothing/graph_reasoning/preprocess.json
+end=$(date +%s)
+echo "End time: $(date)"
+duration=$((end - start))
+echo "Duration: $(($duration / 3600)) hr $((($duration % 3600) / 60)) min $(($duration % 60)) sec"
+echo "--------------------------------------------------------"
+
+echo "------------- step 2: Make dataset --------------"
+start=$(date +%s)
+echo "Start time: $(date)"
+python3 src/graph_reasoning/make_dataset.py \
+    --config config/cell_phones/graph_reasoning/UPGPR.json
+
+# python3 src/graph_reasoning/make_dataset.py \
+#     --config config/beauty/graph_reasoning/UPGPR.json
+# python3 src/graph_reasoning/make_dataset.py \
+#     --config config/cds/graph_reasoning/UPGPR.json
+# python3 src/graph_reasoning/make_dataset.py \
+#     --config config/cellphones/graph_reasoning/UPGPR.json
+# python3 src/graph_reasoning/make_dataset.py \
+#     --config config/clothing/graph_reasoning/UPGPR.json
+end=$(date +%s)
+echo "End time: $(date)"
+duration=$((end - start))
+echo "Duration: $(($duration / 3600)) hr $((($duration % 3600) / 60)) min $(($duration % 60)) sec"
+echo "--------------------------------------------------------"
+
+echo "------------- step 3: Train KG Embedding --------------"
+start=$(date +%s)
+echo "Start time: $(date)"
+python3 src/graph_reasoning/train_transe_model.py \
+    --config config/cell_phones/graph_reasoning/UPGPR.json
+
+# python3 src/graph_reasoning/train_transe_model.py \
+#     --config config/beauty/graph_reasoning/UPGPR.json
+# python3 src/graph_reasoning/train_transe_model.py \
+#     --config config/cds/graph_reasoning/UPGPR.json
+# python3 src/graph_reasoning/train_transe_model.py \
+#     --config config/cellphones/graph_reasoning/UPGPR.json
+# python3 src/graph_reasoning/train_transe_model.py \
+#     --config config/clothing/graph_reasoning/UPGPR.json
+end=$(date +%s)
+echo "End time: $(date)"
+duration=$((end - start))
+echo "Duration: $(($duration / 3600)) hr $((($duration % 3600) / 60)) min $(($duration % 60)) sec"
+echo "--------------------------------------------------------"
+
+echo "------------- step 4: Train RL Agent --------------"
+start=$(date +%s)
+echo "Start time: $(date)"
+python3 src/graph_reasoning/train_agent.py \
+    --config config/cell_phones/graph_reasoning/UPGPR.json
+
+# python3 src/graph_reasoning/train_agent.py \
+#     --config config/beauty/graph_reasoning/UPGPR.json
+# python3 src/graph_reasoning/train_agent.py \
+#     --config config/cds/graph_reasoning/UPGPR.json
+# python3 src/graph_reasoning/train_agent.py \
+#     --config config/cellphones/graph_reasoning/UPGPR.json
+# python3 src/graph_reasoning/train_agent.py \
+#     --config config/clothing/graph_reasoning/UPGPR.json
+end=$(date +%s)
+echo "End time: $(date)"
+duration=$((end - start))
+echo "Duration: $(($duration / 3600)) hr $((($duration % 3600) / 60)) min $(($duration % 60)) sec"
+echo "--------------------------------------------------------"
+
+echo "------------- step 5: Evaluation --------------"
+start=$(date +%s)
+echo "Start time: $(date)"
+python3 src/graph_reasoning/test_agent.py \
+    --config config/cell_phones/graph_reasoning/UPGPR.json
+
+# python3 src/graph_reasoning/test_agent.py \
+#     --config config/beauty/graph_reasoning/UPGPR.json
+# python3 src/graph_reasoning/test_agent.py \
+#     --config config/cds/graph_reasoning/UPGPR.json
+# python3 src/graph_reasoning/test_agent.py \
+#     --config config/cellphones/graph_reasoning/UPGPR.json
+# python3 src/graph_reasoning/test_agent.py \
+#     --config config/clothing/graph_reasoning/UPGPR.json
+# python3 src/graph_reasoning/test_agent.py \
+#     --config config/coco/graph_reasoning/UPGPR.json
+end=$(date +%s)
+echo "End time: $(date)"
+duration=$((end - start))
+echo "Duration: $(($duration / 3600)) hr $((($duration % 3600) / 60)) min $(($duration % 60)) sec"
+echo "--------------------------------------------------------"
+```
+
 ### Preprocessing Dataset
 ```bash
 python3 src/preprocess/beauty.py \
@@ -278,6 +382,50 @@ source UNICORN/run_unicorn.sh
 
 <details>
 <summary>Details code</summary>
+
+```bash
+echo "------------- step 0: TransE Embedding --------------"
+echo "It was trained by GRECS"
+echo "--------------------------------------------------------"
+
+# max_steps==train_step & sample_times=episode
+echo "------------- step 1: Training RL Agent --------------"
+start=$(date +%s)
+echo "Start time: $(date)"
+# python3 RL_model.py --data_name AMAZON --domain Appliances --max_steps 10 --sample_times 1 
+python3 RL_model.py \
+    --data_name BEAUTY --domain Beauty --max_steps 10 --sample_times 1 --embed transe
+python3 RL_model.py \
+    --data_name CELLPHONES --domain Cellphones --max_steps 10 --sample_times 1 --embed transe
+python3 RL_model.py \
+    --data_name CLOTH --domain Cloth --max_steps 10 --sample_times 1 --embed transe
+python3 RL_model.py \
+    --data_name CDS --domain CDs --max_steps 1 --sample_times 1 --embed transe
+end=$(date +%s)
+echo "End time: $(date)"
+duration=$((end - start))
+echo "Duration: $(($duration / 3600)) hr $((($duration % 3600) / 60)) min $(($duration % 60)) sec"
+echo "--------------------------------------------------------"
+
+echo "------------- step 2: Evaluation RL Agent --------------"
+start=$(date +%s)
+echo "Start time: $(date)"
+# python3 evaluate.py --data_name AMAZON --domain Appliances --load_rl_epoch 10
+python3 evaluate.py \
+    --data_name BEAUTY --domain Beauty --load_rl_epoch 10 --embed transe
+python3 evaluate.py \
+    --data_name CELLPHONES --domain Cellphones --load_rl_epoch 10 --embed transe
+python3 evaluate.py \
+    --data_name CLOTH --domain Cloth --load_rl_epoch 10 --embed transe
+python3 evaluate.py \
+    --data_name CDS --domain CDs --load_rl_epoch 10 --embed transe
+end=$(date +%s)
+echo "End time: $(date)"
+duration=$((end - start))
+echo "Duration: $(($duration / 3600)) hr $((($duration % 3600) / 60)) min $(($duration % 60)) sec"
+echo "----------------------------------------------------------"
+
+```
 
 ### Training
 ```bash
