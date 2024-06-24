@@ -161,10 +161,8 @@ This script processes the purchase.txt to generate pair(user,item) of train/test
 </details>
 
 <details>
+<summary>Transitional Embedding (TransE) [3]</summary>
 
-<summary>Train TransE</summary>
-
-### Transitaitonal Embedding (TransE) [3]
 ```bash
 python3 src/graph_reasoning/train_transe_model.py \
     --config config/beauty/graph_reasoning/UPGPR.json
@@ -236,16 +234,22 @@ python3 evaluate.py     \
     --data_name AMAZON --data_name CLOTHING --domain clothing --load_rl_epoch 10 --embed transe
 ```
 
+### 1. `RL_model.py`
+
+This script will train RL policy network. Given $p_0$, the agent will decide which items to recommend.
+
+### 2. `evaluate.py`
+
+This script will evaluate RL policy network. Given $p_0$, the agent will decide which items to recommend
+
 </details>
 
 ## Methodology
 
 <details>
-<summary>Initialize Embedding</summary>
+<summary>Initializing Embeddings for Users/Items</summary>
 
 **How can we best initialize the embedding of new user by utilizing other similar users?**
-
-### Cold Embeddings for Users/Items
 
 #### Average Translations
 While the agent can navigate the Knowledge Graph (KG) from a cold user (or to a cold item) via their integration in the KG, it needs meaningful embeddings in its state representation to take an action that will lead to a relevant recommendation. To this end, [7] propose to calculate the embedding for a new entity by using the `average translations` from its related entities:
@@ -262,15 +266,13 @@ $$
 
 where $\boldsymbol{e_h}, \boldsymbol{r}, \boldsymbol{e_t}$ are the embeddings of $e_h, r$ and $e_t$ respectively and $b_{e_t}$ is the bias of $e_t$.
 
-#### Pos-Neg-Translations
+#### Positive/Negative Translations
 Given pairs $(r', e'_t)$ where $r$ could be actions like "purchase", "mention", "interested", "like", or negative actions like "don't like", "don't interested", and $e_t$ could be associated items, categories, or brands, it compute a weighted average of these pairs.
 
 Let's denote the weight of each pair $(r', e'_t)$ as $w_{r', e'_t}$. If $w_{r', e'_t} = 1$ for `positive pairs` and $-1$ for `negative pairs`, the modified equation could be:
 
 $$ \boldsymbol{e} = \frac{\sum_{(r', e'_t) \in \mathcal{G}_{e}} w_{r', e'_t} \cdot (\boldsymbol{e'_t} - \boldsymbol{r'})}{|\mathcal{G}_{e}|} $$
-
 Where
-
 - $ \mathcal{G}_{e}$ is still the set of pairs $(r, e_t)$.
 - $ \boldsymbol{e_t} $ represents the vector associated with $e_t$.
 - $ \boldsymbol{r} $ represents the vector associated with $r$.
@@ -291,25 +293,26 @@ To evaluate our cold embeddings assignment strategy, we will also compare it to 
 
 ### User-similarity
 
-- `Graph from MCR` : calculate new user embedding $e_{new}$ from last state which consist of $s_t = [\mathcal{H}_u^{(t)},\mathcal{G}_u^{(t)}]$ where
+- `New users embedding from MCR` : 
+We want to construct a pair consisting of an entity and a relation based on the last state $s_t$ which consist of $[\mathcal{H}_u^{(t)},\mathcal{G}_u^{(t)}]$ where
   - $\mathcal{H}_u^{(t)} = [\mathcal{P}_u^{(t)}, \mathcal{P}_{\mathrm{rej}}^{(t)}, \mathcal{V}_{\mathrm{rej}}^{(t)}]$ denotes the conversation history until timestep $t$ 
   - $\mathcal{G}_u^{(t)}$ denotes the dynamic subgraph of $\mathcal{G}$ for the user $u$ at timestep $t$
   - $\mathcal{P}_u$ denotes the user-preferred attribute. 
   - $\mathcal{P}_{\mathrm{rej}}$ denotes the attributes rejected by the user 
   - $\mathcal{V}_{\mathrm{rej}}$ denotes the items rejected by the user
+  
+  We will get each pair $(r', e'_t)$ which it would be $(r', p_{rej}), (r', v_{rej}), (r', p_u)$ then we calculate new user embedding $e_{new}$ from `Positive/Negative Translations`
 
-- `Graph of existing users` : calculate all users $ \textbf{e}_\textbf{U} $ 
+- `Existing users embeddings from TransE` : Take all users $ \textbf{e}_\textbf{U} $ which trained by `transE` 
 
 - `Similarity function` : The goal of finding the highest matching candidate embedding $e_{\text{candidate}}$ involves calculating it using the formula: $$ e_{\text{candidate}} = \arg\max_{e_i \in \textbf{E}_\textbf{U}} f(e_{\text{new}}, e_i) $$ where
-  - $ e_{\text{new}} $: This represents a new embedding vector that you want to match against existing candidate embeddings.
-  - $ \textbf{E}_\textbf{U} $: This denotes a set (or vector) of existing candidate embeddings.
-  - $ f(e_{\text{new}}, e_i) $: This function computes a similarity score or a measure of matching between the new embedding $ e_{\text{new}} $ and each candidate embedding $ e_i \in \textbf{E}_\textbf{U} $. Importantly, $ f(e_{\text{new}}, e_i) $ returns a value in the range $[0, 1]$, where higher values indicate a stronger match or similarity between $ e_{\text{new}} $ and $ e_i $.
+  - $ e_{\text{new}} $ denotes as a new embedding vector that you want to match against existing candidate embeddings.
+  - $ \textbf{E}_\textbf{U} $ denotes as a set (or vector) of existing candidate user embeddings.
+  - $ f(e_{\text{new}}, e_i) $ denotes as a function computes a similarity score or a measure of matching between the new user embedding $ e_{\text{new}} $ and each candidate user embedding $ e_i \in \textbf{E}_\textbf{U} $. Importantly, $ f(e_{\text{new}}, e_i) $ returns a value in the range $[0, 1]$, where higher values indicate a stronger match or similarity between $ e_{\text{new}} $ and $ e_i $.
   
   The expression $ \arg\max_{e_i \in \textbf{E}_\textbf{U}} f(e_{\text{new}}, e_i) $ finds the candidate embedding $ e_i $ from the set $ \textbf{E}_\textbf{U} $ that maximizes the matching function $ f $ with $ e_{\text{new}} $.
-  
-  To summarize, the process described aims to identify the candidate embedding $ e_{\text{candidate}} $ that best matches $ e_{\text{new}} $ based on the similarity function $ f $. This approach is common in various applications such as information retrieval, recommendation systems, and natural language processing tasks where embeddings play a crucial role in representing and comparing data points.
 
-- `Generating Graph Reasoning (GR)`: generate path reasoning of $e_{candidate}$
+- `Graph Reasoning (GR)`: Given $e_{\text{candidate}}$, the GR agent will generate paths for recommendation according to the trained policy.
 
 - `Trim` : After obtaining GR of $e_{candidate}$, we eliminate the nodes of $\mathcal{P}_{\mathrm{rej}}$ and $\mathcal{V}_{\mathrm{rej}}$ 
 </details>
