@@ -11,51 +11,57 @@ pip install -r requirements.txt
 
 <summary>Datasets</summary>
 
-Four Amazon datasets (Amazon_Beauty, Amazon_Electronics, Amazon_Office_Products, Amazon_Home_and_Kitchen) are available in the "data_preprocess/raw_data/" directory and the split is consistent with [1].
+Four Amazon datasets (Amazon_Beauty, Amazon_CDs, Amazon_Cellphones, Amazon_Clothing) are available in the "JRL/raw_data/" directory and the split is consistent with [1] and [2].
 
 All four datasets used in this paper can be downloaded below
--  [Metadata - Amazon dataset v2018](https://cseweb.ucsd.edu/~jmcauley/datasets/amazon_v2/)
+- [Metadata & Reivew-5-core v2014](https://cseweb.ucsd.edu/~jmcauley/datasets/amazon/links.html)
+- [Metadata - Amazon dataset v2018](https://cseweb.ucsd.edu/~jmcauley/datasets/amazon_v2/)
 - [Rating - Amazon dataset v2018](https://nijianmo.github.io/amazon/index.html)
 
 ### Summary statistics of datasets.
 
-We 
-Following ScomGNN, filter categories more than 4 categories & pricing is not empty
-Here's the updated table with the new columns added:
+### Entity Statistics for E-commerce Datasets
 
-| Category             | Reviews              | Metadata             | Filter Metadata      | Filter Usesr | Type | Instance | Brand |
-|----------------------|----------------------|----------------------|----------------------|--------------|------|----------|-------|
-| Appliances           | 602,777 reviews      | 30,459 products      | 804 products         | xx           | xx   | xx       | xx    |
-| Electronics          | 20,994,353 reviews   | 786,868 products     | 46,611 products      | xx           | xx   | xx       | xx    |
-| Grocery and Gourmet Food| 5,074,160 reviews | 287,209 products     | 38,548 products      | xx           | xx   | xx       | xx    |
-| Home and Kitchen     | 21,928,568 reviews   | 1,301,225 products   | 75,514 products      | xx           | xx   | xx       | xx    |
-| Office Products      | 5,581,313 reviews    | 315,644 products     | 42,785 products      | xx           | xx   | xx       | xx    |
-| Sports and Outdoors  | 12,980,837 reviews   | 962,876 products     | 87,076 products      | xx           | xx   | xx       | xx    |
+|                | **CDs** | **Cloth.** | **Cell.** | **Beauty** |
+|----------------|---------|------------|-----------|------------|
+| **#Entities**  |         |            |           |            |
+| User           | 75k     | 39k        | 27k       | 22k        |
+| Product        | 64k     | 23k        | 10k       | 12k        |
+| Word           | 202k    | 21k        | 22k       | 22k        |
+| Brand          | 1.4k    | 1.1k       | 955       | 2k         |
+| Category       | 770     | 1.1k       | 206       | 248        |
 
-### Summary statistics of preprocessed datasets.
+### Relation Statistics for E-commerce Datasets
 
-|                   | Appliances | Electronics | Grocery and Gourmet Food | Home and Kitchen | Office Products | Sports and Outdoors |
-|-------------------|------------|-------------|--------------------------|------------------|-----------------|---------------------|
-| **#Users**        | xx         | xx          | xx                       | xx               | xx              | xx                  |
-| **#Items**        | xx         | xx          | xx                       | xx               | xx              | xx                  |
-| **#Interactions** | xx         | xx          | xx                       | xx               | xx              | xx                  |
-| **#Attributes**   | xx         | xx          | xx                       | xx               | xx              | xx                  |
-| **#Entities**     | xx         | xx          | xx                       | xx               | xx              | xx                  |
-| **#Relations**    | xx         | xx          | xx                       | xx               | xx              | xx                  |
-| **#Triplets**     | xx         | xx          | xx                       | xx               | xx              | xx                  |
+|                                      | **CDs** | **Cloth.** | **Cell.** | **Beauty** |
+|--------------------------------------|---------|------------|-----------|------------|
+| **#Relations**                       |         |            |           |            |
+| User $\xrightarrow{\text{purchase}}$ Product               | 1.1M    | 278k       | 194k      | 198k       |
+| User $\xrightarrow{\text{mention}}$ Word                   | 191M    | 17M        | 18M       | 18M        |
+| User $\xrightarrow{\text{like}}$ Brand | 192k    | 60k        | 90k       | 132k       |
+| User $\xrightarrow{\text{interested\_in}}$ Category | 2.0M    | 949k       | 288k      | 354k       |
+| Product $\xrightarrow{\text{described\_by}}$ Word          | 191M    | 17M        | 18M       | 18M        |
+| Product $\xrightarrow{\text{belong\_to}}$ Category | 466k    | 154k       | 36k       | 49k        |
+| Product $\xrightarrow{\text{produced\_by}}$ Brand | 64k     | 23k        | 10k       | 12k        |
+| Product $\xrightarrow{\text{also\_bought}}$ Product        | 3.6M    | 1.4M       | 590k      | 891k       |
+| Product $\xrightarrow{\text{also\_viewed}}$ Product        | 78k     | 147k       | 22k       | 155k       |
+| Product $\xrightarrow{\text{bought\_together}}$ Product    | 78k     | 28k        | 12k       | 14k        |
 
+### Entities and Relations 
+| Head | Relation           | Tail                 |
+|------|--------------------|----------------------|
+| USER | INTERACT           | ITEM                 |
+| USER | MENTION            | WORD                 |
+| USER | LIKE**             | BRAND                |
+| USER | INTERESTED_IN**    | CATEGORY             |
+| ITEM | DESCRIBED_BY       | WORD                 |
+| ITEM | BELONG_TO**        | CATEGORY (FEATURE)   |
+| ITEM | PRODUCED_BY**      | BRAND (FEATURE)      |
+| ITEM | ALSO_BUY           | ITEM                 |
+| ITEM | ALSO_VIEW          | ITEM                 |
+| ITEM | BOUGHT_TOGETHER    | ITEM                 |
 
-### Entities and Relations
-```bash
-Head    -> Relation         -> Tail
-1. USER -> INTERACT         -> ITEM
-2. ITEM -> ALSO_BUY         -> ITEM 
-3. ITEM -> ALSO_VIEW        -> ITEM
-4. ITEM -> BELONG_TO        -> FEATURE(TYPE)
-5. ITEM -> PRODUCE_BY       -> FEATURE(BRAND)
-6. ITEM -> DESCRIBED_BY     -> FEATURE(FUNCTION)
-7. TYPE -> BELONG_TO_LARGE  -> CATEGORIES
-```
+** denoted it used to integrate cold users or cold items into the KG.
 
 </details>
 
@@ -338,7 +344,7 @@ You can ignore the warning "command line args [--config config/baselines/Pop.yam
 </details>
 
 ## Citation
-Todsavad Tangtortan. 2024.Adapting Graph Reasoning for Explainable Cold Start Recommendation on Multi-Round Conversation Recommendation (AGRMCR). AIT, Thailand.
+Todsavad Tangtortan. 2024. Adapting Graph Reasoning for Explainable Cold Start Recommendation on Multi-Round Conversation Recommendation (AGRMCR). AIT, Thailand.
 
 ## References
 [1] Yongfeng Zhang, Qingyao Ai, Xu Chen, and W. Bruce Croft. 2017. Joint Representation Learning for Top-N Recommendation with Heterogeneous Information Sources. In Proceedings of the 2017 ACM on Conference on Information and Knowledge Management (CIKM '17). Association for Computing Machinery, New York, NY, USA, 1449–1458. https://doi.org/10.1145/3132847.3132892
