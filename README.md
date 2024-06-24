@@ -33,13 +33,13 @@ Four Amazon datasets (Amazon_Beauty, Amazon_CDs, Amazon_Cellphones, Amazon_Cloth
 | User $\xrightarrow{\text{purchase}}$ Product               | 1.1M    | 278k       | 194k      | 198k       |
 | User $\xrightarrow{\text{mention}}$ Word                   | 191M    | 17M        | 18M       | 18M        |
 | User $\xrightarrow{\text{like}}$ Brand | 192k    | 60k        | 90k       | 132k       |
-| User $\xrightarrow{\text{interested\_in}}$ Category | 2.0M    | 949k       | 288k      | 354k       |
-| Product $\xrightarrow{\text{described\_by}}$ Word          | 191M    | 17M        | 18M       | 18M        |
-| Product $\xrightarrow{\text{belong\_to}}$ Category | 466k    | 154k       | 36k       | 49k        |
-| Product $\xrightarrow{\text{produced\_by}}$ Brand | 64k     | 23k        | 10k       | 12k        |
-| Product $\xrightarrow{\text{also\_bought}}$ Product        | 3.6M    | 1.4M       | 590k      | 891k       |
-| Product $\xrightarrow{\text{also\_viewed}}$ Product        | 78k     | 147k       | 22k       | 155k       |
-| Product $\xrightarrow{\text{bought\_together}}$ Product    | 78k     | 28k        | 12k       | 14k        |
+| User $\xrightarrow{\text{interested in}}$ Category | 2.0M    | 949k       | 288k      | 354k       |
+| Product $\xrightarrow{\text{described by}}$ Word          | 191M    | 17M        | 18M       | 18M        |
+| Product $\xrightarrow{\text{belong to}}$ Category | 466k    | 154k       | 36k       | 49k        |
+| Product $\xrightarrow{\text{produced by}}$ Brand | 64k     | 23k        | 10k       | 12k        |
+| Product $\xrightarrow{\text{also bought}}$ Product        | 3.6M    | 1.4M       | 590k      | 891k       |
+| Product $\xrightarrow{\text{also viewed}}$ Product        | 78k     | 147k       | 22k       | 155k       |
+| Product $\xrightarrow{\text{bought together}}$ Product    | 78k     | 28k        | 12k       | 14k        |
 
 ### Entities and Relations 
 | Head | Relation           | Tail                 |
