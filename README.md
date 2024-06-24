@@ -108,7 +108,7 @@ This script processes the data to generate relation files, which describe variou
 
 </details>
 
-## GRECS - Path Reasoning
+## GRECS - Graph Reasoning (GR)
 
 <details>
 <summary>Graph construction</summary>
@@ -205,7 +205,7 @@ python3 src/graph_reasoning/test_agent.py \
 ```
 </details>
 
-## UNICORN - Multi-round Conversation
+## UNICORN - Multi-round Conversation Recommendation (MCR)
 
 <details>
 <summary>Train & Evaluation RL agent</summary>
