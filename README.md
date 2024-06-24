@@ -294,6 +294,49 @@ python3 evaluate.py     \
 
 </details>
 
+
+## Ablation Study
+<details>
+
+1. Does past history of other user preferences in the form of graph improve the success rate of recommendation ?
+
+### User-similarity
+
+2. How can we best initialize the embedding of new user by utilizing other similar users?
+### Cold Embeddings for User
+While the agent can navigate the Knowledge Graph (KG) from a cold user (or to a cold item) via their integration in the KG, it needs meaningful embeddings in its state representation to take an action that will lead to a relevant recommendation. To this end, we propose to calculate the embedding for a new entity by using the average translations from its related entities:
+
+$$
+\boldsymbol{e} = \sum_{(r', e'_t) \in \mathcal{G}_{e}} \left(\boldsymbol{e'_t} - \boldsymbol{r'}\right)/|\mathcal{G}_{e}|
+$$
+
+where $\mathcal{G}_{e}$ is the subset of all triplets in $\mathcal{G}$ whose head entity is $e$. This choice is motivated by the KG embeddings being trained using a translation method as described below:
+
+$$
+f(e_h, e_t | r) = <\boldsymbol{e_h} + \boldsymbol{r}, \boldsymbol{e_t}> + b_{e_t}
+$$
+
+where $\boldsymbol{e_h}, \boldsymbol{r}, \boldsymbol{e_t}$ are the embeddings of $e_h, r$ and $e_t$ respectively and $b_{e_t}$ is the bias of $e_t$.
+
+To evaluate our cold embeddings assignment strategy, we will also compare it to using null embeddings (zero values everywhere) that correspond to no prior knowledge about users or items. In the following sections, we denote models using the average translation embeddings as `PGPR_a`/`UPGPR_a`, null embeddings as `PGPR_0`/`UPGPR_0`, and both methods regardless of the embeddings as `PGPR`/`UPGPR`.
+
+
+
+3. Overall, how does our technique compare to SOTA techniques?
+### Run the baselines
+
+To run a baseline on Beauty, choose a yaml config file in config/beauty/baselines and run the following:
+
+```bash
+python src/baselines/baseline.py --config config/baselines/Pop.yaml
+```
+
+This example runs the Pop baseline on the Beauty dataset.
+
+You can ignore the warning "command line args [--config config/baselines/Pop.yaml] will not be used in RecBole". The argument is used properly.
+
+</details>
+
 ## Citation
 Todsavad Tangtortan. 2024.Adapting Graph Reasoning for Explainable Cold Start Recommendation on Multi-Round Conversation Recommendation (AGRMCR). AIT, Thailand.
 
