@@ -76,12 +76,36 @@ All four datasets used in this paper can be downloaded below
 ## JRL - Preprocessing dataset
 
 <details>
-<summary>Preprocessing</summary>
+<summary>Preprocessing dataset </summary>
 
 ```bash
 python3 index_and_filter_review_file.py
 python3 match_cate_brand_related.py
 ```
+### 1. `index_and_filter_review_file.py `
+
+This script processes the review data to generate various entity files.
+#### Generated Files:
+- `vocab.txt`: Contains a list of unique words from the reviews.
+- `user.txt`: Contains a list of unique user IDs.
+- `product.txt`: Contains a list of unique product IDs.
+- `review_text.txt`: Contains the text of the reviews.
+- `review_u_p.txt`: Maps reviews to users and products.
+- `review_id.txt`: Contains unique review IDs.
+
+### 2. `match_cate_brand_related.py`
+
+This script processes the data to generate relation files, which describe various relationships between entities such as products, brands, and categories.
+#### Generated Files:
+- `also_bought_p_p.txt`: Contains pairs of products that are often bought together.
+- `also_view_p_p.txt`: Contains pairs of products that are often viewed together.
+- `bought_together_p_p.txt`: Contains pairs of products that are frequently bought together.
+- `brand_p_b.txt`: Maps products to their respective brands.
+- `category_p_c.txt`: Maps products to their respective categories.
+- `brand.txt`: Contains a list of unique brands.
+- `category.txt`: Contains a list of unique categories.
+- `related_product` : Contains a list of unique related_product product IDs.
+
 </details>
 
 ## GRECS - Path Reasoning
@@ -113,13 +137,34 @@ python3 src/graph_reasoning/make_dataset.py \
     --config config/clothing/graph_reasoning/UPGPR.json
 ```
 
+### 1. `preprocess/domain.py`
+
+This script processes the review data to generate various entity files.
+#### Generated Files:
+- `mentioned_by_u_w.txt`    :
+- `described_as_p_w.txt`    : 
+- `purchases.txt`           :
+- `interested_in_u_c.txt`   :
+
+### 2. `make_dataset.py`
+
+This script processes the purchase.txt to generate pair(user,item) of train/test/validation.txt
+#### Generated Files:
+- `train.txt`               : 
+- `test.txt`                :
+- `validation.txt`          :
+- `train_dataset.pkl`       :
+- `test_dataset.pkl`        :
+- `valiation_dataset.pkl`   :
+- `kg.pkl`                  :
+
 </details>
 
 <details>
 
-<summary>TransE Embedding</summary>
+<summary>Train TransE</summary>
 
-### Transitaitonal Embedding (TransE) 
+### Transitaitonal Embedding (TransE) [3]
 ```bash
 python3 src/graph_reasoning/train_transe_model.py \
     --config config/beauty/graph_reasoning/UPGPR.json
@@ -193,20 +238,7 @@ python3 evaluate.py     \
 
 </details>
 
-## User-Similarity
-
-
-
 ## Ablation Study
-
-<details>
-<summary>Past History in the form of graph</summary>
-
-**Does past history of other user preferences in the form of graph improve the success rate of recommendation ?**
-
-### User-similarity
-
-</details>
 
 <details>
 <summary>Initialize Embedding</summary>
@@ -230,7 +262,7 @@ $$
 
 where $\boldsymbol{e_h}, \boldsymbol{r}, \boldsymbol{e_t}$ are the embeddings of $e_h, r$ and $e_t$ respectively and $b_{e_t}$ is the bias of $e_t$.
 
-#### Negative-pair
+#### Pos-Neg-Translations
 Given pairs $(r', e'_t)$ where $r$ could be actions like "purchase", "mention", "interested", "like", or negative actions like "don't like", "don't interested", and $e_t$ could be associated items, categories, or brands, it compute a weighted average of these pairs.
 
 Let's denote the weight of each pair $(r', e'_t)$ as $w_{r', e'_t}$. If $w_{r', e'_t} = 1$ for **positive pairs** and $-1$ for **negative pairs**, the modified equation could be:
@@ -242,14 +274,35 @@ Where
 - $ \mathcal{G}_{e}$ is still the set of pairs \((r, e_t)\).
 - $ \boldsymbol{e_t} $ represents the vector associated with $e_t$.
 - $ \boldsymbol{r} $ represents the vector associated with \(r\).
-- $ w_{r, e_t} $ is the weight assigned to each pair, where $ w_{r, e_t} = 1 $ for positive pairs like $(purchase, item)$, $(mention, item)$, etc.
-- $ w_{r, e_t} = -1 $ for negative pairs like $(disike, brand)$, $(disinterested, category)$.
+- $ w_{r, e_t} $ is the weight assigned to each pair, where $ w_{r, e_t} = 1 $ for positive pairs like (purchase, item), (mention, item), etc.
+- $ w_{r, e_t} = -1 $ for negative pairs like (disike, brand), (disinterested, category).
 
 This modification allows you to adjust the contribution of each pair based on whether it is positive or negative, while still computing an average vector $\boldsymbol{e}$ that reflects the relationships captured by your pairs $(r', e'_t)$.
 
-
+#### Null embeddings
 To evaluate our cold embeddings assignment strategy, we will also compare it to using **null embeddings** (zero values everywhere) that correspond to no prior knowledge about users or items. In the following sections, we denote models using the average translation embeddings as `PGPR_a`/`UPGPR_a`, null embeddings as `PGPR_0`/`UPGPR_0`, negative embeddings as `PGPR_n`/`UPGPR_n`, and these methods regardless of the embeddings as `PGPR`/`UPGPR`.
 
+</details>
+
+<details>
+<summary>Past history in the form of graph</summary>
+
+**Does past history of other user preferences in the form of graph improve the success rate of recommendation ?**
+`
+### User-similarity
+
+- Graph from MCR : calculate new user embedding $e_{new}$ from last state which consist of $s_t = [\mathcal{H}_u^{(t)},\mathcal{G}_u^{(t)}]$ where $\mathcal{H}_u^{(t)} = [\mathcal{P}_u^{(t)}, \mathcal{P}_{\mathrm{rej}}^{(t)}, \mathcal{V}_{\mathrm{rej}}^{(t)}]$ denotes the conversation history until timestep $t$, and $\mathcal{G}_u^{(t)}$ denotes the dynamic subgraph of $\mathcal{G}$ for the user $u$ at  timestep $t$
+  - $\mathcal{P}_u$ denotes the user-preferred attribute. 
+  - $\mathcal{P}_{\mathrm{rej}}$ is the attributes rejected by the user 
+  - $\mathcal{V}_{\mathrm{rej}}$ are the attributes rejected by the user
+
+- Graph Past history of existing user : calculate all users $ \textbf{e}_\textbf{U} $
+
+- Similarity function : $ argmax(f(e_{new}, \textbf{e}_\textbf{U}))$ where $f(e_{\text{new}}, \textbf{e}_\textbf{U}) \in [0, 1] $
+
+- Generating Graph Reasoning (GR): 
+
+- Trim : After obtaining GR of $e_u$, we eliminate the nodes which are $\mathcal{P}_{\mathrm{rej}}$ and $\mathcal{V}_{\mathrm{rej}}$ 
 </details>
 
 <details>
@@ -279,10 +332,12 @@ Todsavad Tangtortan, Pranisaa Charnparttaravanit, Akraradet Sinsamersuk, Chaklam
 
 [2] Yukuo Cen, Jianwei Zhang, Xu Zou, Chang Zhou, Hongxia Yang, and Jie Tang. 2020. Controllable Multi-Interest Framework for Recommendation. In Proceedings of the 26th ACM SIGKDD International Conference on Knowledge Discovery & Data Mining (KDD '20). Association for Computing Machinery, New York, NY, USA, 2942–2951. https://doi.org/10.1145/3394486.3403344
 
-[3] Yang Deng, Yaliang Li, Fei Sun, Bolin Ding, and Wai Lam. 2021. Unified Conversational Recommendation Policy Learning via Graph-based Reinforcement Learning. In Proceedings of the 44th International ACM SIGIR Conference on Research and Development in Information Retrieval (SIGIR '21). Association for Computing Machinery, New York, NY, USA, 1431–1441. https://doi.org/10.1145/3404835.3462913
+[3] Antoine Bordes, Nicolas Usunier, Alberto Garcia-Durán, Jason Weston, and Oksana Yakhnenko. 2013. Translating embeddings for modeling multi-relational data. In Proceedings of the 26th International Conference on Neural Information Processing Systems - Volume 2 (NIPS'13). Curran Associates Inc., Red Hook, NY, USA, 2787–2795.
 
-[4] Yikun Xian, Zuohui Fu, S. Muthukrishnan, Gerard de Melo, and Yongfeng Zhang. 2019. Reinforcement Knowledge Graph Reasoning for Explainable Recommendation. In Proceedings of the 42nd International ACM SIGIR Conference on Research and Development in Information Retrieval (SIGIR'19). Association for Computing Machinery, New York, NY, USA, 285–294. https://doi.org/10.1145/3331184.3331203
+[4] Yang Deng, Yaliang Li, Fei Sun, Bolin Ding, and Wai Lam. 2021. Unified Conversational Recommendation Policy Learning via Graph-based Reinforcement Learning. In Proceedings of the 44th International ACM SIGIR Conference on Research and Development in Information Retrieval (SIGIR '21). Association for Computing Machinery, New York, NY, USA, 1431–1441. https://doi.org/10.1145/3404835.3462913
 
-[5] Jibril Frej, Neel Shah, Marta Knezevic, Tanya Nazaretsky, and Tanja Käser. 2024. Finding Paths for Explainable MOOC Recommendation: A Learner Perspective. In Proceedings of the 14th Learning Analytics and Knowledge Conference (LAK '24). Association for Computing Machinery, New York, NY, USA, 426–437. https://doi.org/10.1145/3636555.3636898
+[5] Yikun Xian, Zuohui Fu, S. Muthukrishnan, Gerard de Melo, and Yongfeng Zhang. 2019. Reinforcement Knowledge Graph Reasoning for Explainable Recommendation. In Proceedings of the 42nd International ACM SIGIR Conference on Research and Development in Information Retrieval (SIGIR'19). Association for Computing Machinery, New York, NY, USA, 285–294. https://doi.org/10.1145/3331184.3331203
 
-[6] Jibril Frej, Marta Knezevic, Tanja Kaser. "Graph Reasoning for Explainable Cold Start Recommendation." arXiv preprint arXiv:2406.07420, 2024.
+[6] Jibril Frej, Neel Shah, Marta Knezevic, Tanya Nazaretsky, and Tanja Käser. 2024. Finding Paths for Explainable MOOC Recommendation: A Learner Perspective. In Proceedings of the 14th Learning Analytics and Knowledge Conference (LAK '24). Association for Computing Machinery, New York, NY, USA, 426–437. https://doi.org/10.1145/3636555.3636898
+
+[7] Jibril Frej, Marta Knezevic, Tanja Kaser. "Graph Reasoning for Explainable Cold Start Recommendation." arXiv preprint arXiv:2406.07420, 2024.
