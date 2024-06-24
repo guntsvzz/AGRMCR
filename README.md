@@ -92,7 +92,7 @@ This script processes the data to generate relation files, which describe variou
 - `category_p_c.txt`: Maps products to their respective categories.
 - `brand.txt`: Contains a list of unique brands.
 - `category.txt`: Contains a list of unique categories.
-- `related_product` : Contains a list of unique related_product product IDs.
+- `related_product.txt` : Contains a list of unique related_product product IDs.
 
 </details>
 
