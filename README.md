@@ -201,32 +201,6 @@ python3 src/graph_reasoning/make_dataset.py \
 </details>
 
 <details>
-<summary>Description</summary>
-
-### 1. `preprocess/domain.py`
-
-This script processes the review data to generate various entity files.
-#### Generated Files:
-- `mentioned_by_u_w.txt`    :
-- `described_as_p_w.txt`    : 
-- `purchases.txt`           :
-- `interested_in_u_c.txt`   :
-
-### 2. `make_dataset.py`
-
-This script processes the purchase.txt to generate pair(user,item) of train/test/validation.txt
-#### Generated Files:
-- `train.txt`               : 
-- `test.txt`                :
-- `validation.txt`          :
-- `train_dataset.pkl`       :
-- `test_dataset.pkl`        :
-- `valiation_dataset.pkl`   :
-- `kg.pkl`                  :
-
-</details>
-
-<details>
 <summary>Transitional Embedding (TransE) [3]</summary>
 
 ```bash
@@ -271,6 +245,32 @@ python3 src/graph_reasoning/test_agent.py \
 ```
 </details>
 
+<details>
+<summary>Description</summary>
+
+### 1. `preprocess/domain.py`
+
+This script processes the review data to generate various entity files.
+#### Generated Files:
+- `mentioned_by_u_w.txt`    :
+- `described_as_p_w.txt`    : 
+- `purchases.txt`           :
+- `interested_in_u_c.txt`   :
+
+### 2. `make_dataset.py`
+
+This script processes the purchase.txt to generate pair(user,item) of train/test/validation.txt
+#### Generated Files:
+- `train.txt`               : 
+- `test.txt`                :
+- `validation.txt`          :
+- `train_dataset.pkl`       :
+- `test_dataset.pkl`        :
+- `valiation_dataset.pkl`   :
+- `kg.pkl`                  :
+
+</details>
+
 ## UNICORN - Multi-round Conversation Recommendation (MCR)
 ```bash
 source UNICORN/run_unicorn.sh
@@ -278,11 +278,6 @@ source UNICORN/run_unicorn.sh
 
 <details>
 <summary>Details code</summary>
-
-</details>
-
-<details>
-<summary>Train & Evaluation RL agent</summary>
 
 ### Training
 ```bash
@@ -307,6 +302,11 @@ python3 evaluate.py \
 python3 evaluate.py     \
     --data_name AMAZON --data_name CLOTHING --domain clothing --load_rl_epoch 10 --embed transe
 ```
+
+</details>
+
+<details>
+<summary> Description </summary>
 
 ### 1. `RL_model.py`
 
