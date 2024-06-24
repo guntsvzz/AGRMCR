@@ -167,9 +167,12 @@ This script processes the data to generate relation files, which describe variou
 </details>
 
 ## GRECS - Graph Reasoning (GR)
+```bash
+source GRECS/run_grec.sh
+```
 
 <details>
-<summary>Graph construction</summary>
+<summary> Details code </summary>
 
 ### Preprocessing Dataset
 ```bash
@@ -194,6 +197,11 @@ python3 src/graph_reasoning/make_dataset.py \
 python3 src/graph_reasoning/make_dataset.py \
     --config config/clothing/graph_reasoning/UPGPR.json
 ```
+
+</details>
+
+<details>
+<summary>Description</summary>
 
 ### 1. `preprocess/domain.py`
 
@@ -264,6 +272,14 @@ python3 src/graph_reasoning/test_agent.py \
 </details>
 
 ## UNICORN - Multi-round Conversation Recommendation (MCR)
+```bash
+source UNICORN/run_unicorn.sh
+```
+
+<details>
+<summary>Details code</summary>
+
+</details>
 
 <details>
 <summary>Train & Evaluation RL agent</summary>
