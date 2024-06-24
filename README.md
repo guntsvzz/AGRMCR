@@ -288,7 +288,7 @@ To evaluate our cold embeddings assignment strategy, we will also compare it to 
 <summary>Past history in the form of graph</summary>
 
 **Does past history of other user preferences in the form of graph improve the success rate of recommendation ?**
-`
+
 ### User-similarity
 
 - Graph from MCR : calculate new user embedding $e_{new}$ from last state which consist of $s_t = [\mathcal{H}_u^{(t)},\mathcal{G}_u^{(t)}]$ where $\mathcal{H}_u^{(t)} = [\mathcal{P}_u^{(t)}, \mathcal{P}_{\mathrm{rej}}^{(t)}, \mathcal{V}_{\mathrm{rej}}^{(t)}]$ denotes the conversation history until timestep $t$, and $\mathcal{G}_u^{(t)}$ denotes the dynamic subgraph of $\mathcal{G}$ for the user $u$ at  timestep $t$
