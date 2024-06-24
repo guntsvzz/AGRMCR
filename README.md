@@ -270,18 +270,26 @@ python3 src/graph_reasoning/test_agent.py \
 
 ### Training
 ```bash
-python3 RL_model.py --data_name AMAZON --domain beauty --max_steps 10 --sample_times 1 
-python3 RL_model.py --data_name AMAZON --domain cds --max_steps 10 --sample_times 1 
-python3 RL_model.py --data_name AMAZON --domain cellphones --max_steps 10 --sample_times 1 
-python3 RL_model.py --data_name AMAZON --domain clothing --max_steps 10 --sample_times 1 
+python3 RL_model.py \
+    --data_name AMAZON --data_name BEAUTY --domain beauty --max_steps 100 --sample_times 100 --embed transe
+python3 RL_model.py \
+    --data_name AMAZON --data_name CDS --domain cds --max_steps 100 --sample_times 100 --embed transe
+python3 RL_model.py \
+    --data_name AMAZON --data_name CELLPHONES --domain cellphones --max_steps 100 --sample_times 100 --embed transe
+python3 RL_model.py \
+    --data_name AMAZON --data_name CLOTHING --domain clothing --max_steps 100 --sample_times 100 --embed transe
 ```
 
 ### Evaluation
 ```bash
-python3 evaluate.py --data_name AMAZON --domain beauty --load_rl_epoch 10
-python3 evaluate.py --data_name AMAZON --domain Appliances --load_rl_epoch 10
-python3 evaluate.py --data_name AMAZON --domain cellphones --load_rl_epoch 10
-python3 evaluate.py --data_name AMAZON --domain clothing --load_rl_epoch 10
+python3 evaluate.py \
+    --data_name AMAZON --data_name BEAUTY --domain beauty --load_rl_epoch 10 --embed transe
+python3 evaluate.py \
+    --data_name AMAZON --data_name CDS --domain cds --load_rl_epoch 10 --embed transe
+python3 evaluate.py \
+    --data_name AMAZON --data_name CELLPHONES --domain cellphones --load_rl_epoch 10 --embed transe
+python3 evaluate.py     \
+    --data_name AMAZON --data_name CLOTHING --domain clothing --load_rl_epoch 10 --embed transe
 ```
 
 </details>
