@@ -73,7 +73,7 @@ All four datasets used in this paper can be downloaded below
 
 ## How to run the code
 
-## JRL
+## JRL - Preprocessing dataset
 
 <details>
 <summary>Preprocessing</summary>
@@ -84,7 +84,7 @@ python3 match_cate_brand_related.py
 ```
 </details>
 
-## GRECS
+## GRECS - Path Reasoning
 
 <details>
 <summary>Graph construction</summary>
@@ -162,7 +162,7 @@ python3 src/graph_reasoning/test_agent.py \
 ```
 </details>
 
-## UNICORN
+## UNICORN - Multi-round Conversation
 
 <details>
 <summary>Train & Evaluation RL agent</summary>
@@ -192,6 +192,9 @@ python3 evaluate.py     \
 ```
 
 </details>
+
+## User-Similarity
+
 
 
 ## Ablation Study
@@ -227,8 +230,6 @@ $$
 
 where $\boldsymbol{e_h}, \boldsymbol{r}, \boldsymbol{e_t}$ are the embeddings of $e_h, r$ and $e_t$ respectively and $b_{e_t}$ is the bias of $e_t$.
 
-To evaluate our cold embeddings assignment strategy, we will also compare it to using null embeddings (zero values everywhere) that correspond to no prior knowledge about users or items. In the following sections, we denote models using the average translation embeddings as `PGPR_a`/`UPGPR_a`, null embeddings as `PGPR_0`/`UPGPR_0`, and both methods regardless of the embeddings as `PGPR`/`UPGPR`.
-
 #### Negative-pair
 Given pairs $(r', e'_t)$ where $r$ could be actions like "purchase", "mention", "interested", "like", or negative actions like "don't like", "don't interested", and $e_t$ could be associated items, categories, or brands, it compute a weighted average of these pairs.
 
@@ -246,6 +247,8 @@ Where
 
 This modification allows you to adjust the contribution of each pair based on whether it is positive or negative, while still computing an average vector $\boldsymbol{e}$ that reflects the relationships captured by your pairs $(r', e'_t)$.
 
+
+To evaluate our cold embeddings assignment strategy, we will also compare it to using **null embeddings** (zero values everywhere) that correspond to no prior knowledge about users or items. In the following sections, we denote models using the average translation embeddings as `PGPR_a`/`UPGPR_a`, null embeddings as `PGPR_0`/`UPGPR_0`, negative embeddings as `PGPR_n`/`UPGPR_n`, and these methods regardless of the embeddings as `PGPR`/`UPGPR`.
 
 </details>
 
@@ -269,7 +272,7 @@ You can ignore the warning "command line args [--config config/baselines/Pop.yam
 </details>
 
 ## Citation
-Todsavad Tangtortan. 2024. Adapting Graph Reasoning for Explainable Cold Start Recommendation on Multi-Round Conversation Recommendation (AGRMCR). AIT, Thailand.
+Todsavad Tangtortan, Pranisaa Charnparttaravanit, Akraradet Sinsamersuk, Chaklam Silpasuwanchai. 2024. Adapting Graph Reasoning for Explainable Cold Start Recommendation on Multi-Round Conversation Recommendation (AGRMCR). 
 
 ## References
 [1] Yongfeng Zhang, Qingyao Ai, Xu Chen, and W. Bruce Croft. 2017. Joint Representation Learning for Top-N Recommendation with Heterogeneous Information Sources. In Proceedings of the 2017 ACM on Conference on Information and Knowledge Management (CIKM '17). Association for Computing Machinery, New York, NY, USA, 1449–1458. https://doi.org/10.1145/3132847.3132892
