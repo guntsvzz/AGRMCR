@@ -14,9 +14,9 @@ pip install -r requirements.txt
 Four Amazon datasets (Amazon_Beauty, Amazon_CDs, Amazon_Cellphones, Amazon_Clothing) are available in the "JRL/raw_data/" directory and the split is consistent with [1] and [2].
 
 All four datasets used in this paper can be downloaded below
-- [Metadata & Reivew-5-core v2014](https://cseweb.ucsd.edu/~jmcauley/datasets/amazon/links.html)
+- [Metadata & Review-5-core v2014](https://cseweb.ucsd.edu/~jmcauley/datasets/amazon/links.html)
 - [Metadata - Amazon dataset v2018](https://cseweb.ucsd.edu/~jmcauley/datasets/amazon_v2/)
-- [Rating - Amazon dataset v2018](https://nijianmo.github.io/amazon/index.html)
+- [Review-5-core - Amazon dataset v2018](https://nijianmo.github.io/amazon/index.html)
 
 ### Summary statistics of datasets.
 
@@ -68,113 +68,6 @@ All four datasets used in this paper can be downloaded below
 <details>
 
 <summary> Graph Formating </summary>
-
-```bash
-brand_dict.json
-{
-    "brandA" : 0,
-    "brandB" : 1,
-    ...
-}
-feature2id.json
-{
-    "brand1"    : 0,
-    "brand2"    : 1,
-    ...
-    "brandX"    : x,
-    ...
-    "category1" :  x+1,
-    "category2" :  x+2,
-    ...
-    "category"  :  x+y,
-    ...
-    "type1"     :  x+y+1,
-    "type2"     :  x+y+2,
-    ...
-    "typez"     :  x+y+z,
-
-
-}
-```
-
-```bash
-user_dict.json
-{
-    "0" : {
-        "friend" : [],
-        "like" : [],
-        "interact" [item(idx), item(idx),...]
-    },
-    "1" : {
-        "friend" : [],
-        "like" : [],
-        "interact" []
-    },
-    ...
-}
-```
-
-```bash
-item_dict.json
-{
-    "0" : {
-        "categories" : [int, int, int],
-        "brand" : int,
-        "feature_index" [int, int, int]
-        "asin" : str
-    },
-    "1" : {
-        "categories" : [int, int, int],
-        "brand" : int,
-        "feature_index" [int, int, int]
-        "asin" : str
-    },
-    ...
-}
-```
-
-```bash
-feature_dict.json
-{
-    "0" : {
-        "link_to_feature" : [],
-        "like" : [],
-        "belong_to" [item(idx), item(idx),...]
-    },
-    "1" : {
-        "link_to_feature" : [],
-        "like" : [],
-        "belong_to" [item(idx), item(idx),...]
-    },
-    ...
-}
-```
-
-```bash
-first-layer_merged_tag_map.json
-{
-    "categories#1" : 0,
-    "categories#2" : 0,
-    ...
-}
-```
-
-```bash
-second-layer_oringinal_tag_map.json
-{
-    "type#1" : 0,
-    "type#2" : 0,
-    ...
-}
-```
-
-```bash
-2-layer taxonomy.json
-{
-    "Categories#1": [TypeA, TypeB, TypeC],
-    "Categories#2": [TypeD, TypeE, TypeF],
-}
-```
 
 </details>
 
