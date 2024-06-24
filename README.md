@@ -238,7 +238,7 @@ python3 evaluate.py     \
 
 </details>
 
-## Ablation Study
+## Methodology
 
 <details>
 <summary>Initialize Embedding</summary>
@@ -248,7 +248,7 @@ python3 evaluate.py     \
 ### Cold Embeddings for Users/Items
 
 #### Average Translations
-While the agent can navigate the Knowledge Graph (KG) from a cold user (or to a cold item) via their integration in the KG, it needs meaningful embeddings in its state representation to take an action that will lead to a relevant recommendation. To this end, we propose to calculate the embedding for a new entity by using the `average translations` from its related entities:
+While the agent can navigate the Knowledge Graph (KG) from a cold user (or to a cold item) via their integration in the KG, it needs meaningful embeddings in its state representation to take an action that will lead to a relevant recommendation. To this end, [7] propose to calculate the embedding for a new entity by using the `average translations` from its related entities:
 
 $$
 \boldsymbol{e} = \sum_{(r', e'_t) \in \mathcal{G}_{e}} \left(\boldsymbol{e'_t} - \boldsymbol{r'}\right)/|\mathcal{G}_{e}|
@@ -271,9 +271,9 @@ $$ \boldsymbol{e} = \frac{\sum_{(r', e'_t) \in \mathcal{G}_{e}} w_{r', e'_t} \cd
 
 Where
 
-- $ \mathcal{G}_{e}$ is still the set of pairs \((r, e_t)\).
+- $ \mathcal{G}_{e}$ is still the set of pairs $(r, e_t)$.
 - $ \boldsymbol{e_t} $ represents the vector associated with $e_t$.
-- $ \boldsymbol{r} $ represents the vector associated with \(r\).
+- $ \boldsymbol{r} $ represents the vector associated with $r$.
 - $ w_{r, e_t} $ is the weight assigned to each pair, where $ w_{r, e_t} = 1 $ for positive pairs like (purchase, item), (mention, item), etc.
 - $ w_{r, e_t} = -1 $ for negative pairs like (disike, brand), (disinterested, category).
 
@@ -291,20 +291,27 @@ To evaluate our cold embeddings assignment strategy, we will also compare it to 
 
 ### User-similarity
 
-- `Graph from MCR` : calculate new user embedding $e_{new}$ from last state which consist of $s_t = [\mathcal{H}_u^{(t)},\mathcal{G}_u^{(t)}]$ 
+- `Graph from MCR` : calculate new user embedding $e_{new}$ from last state which consist of $s_t = [\mathcal{H}_u^{(t)},\mathcal{G}_u^{(t)}]$ where
   - $\mathcal{H}_u^{(t)} = [\mathcal{P}_u^{(t)}, \mathcal{P}_{\mathrm{rej}}^{(t)}, \mathcal{V}_{\mathrm{rej}}^{(t)}]$ denotes the conversation history until timestep $t$ 
   - $\mathcal{G}_u^{(t)}$ denotes the dynamic subgraph of $\mathcal{G}$ for the user $u$ at timestep $t$
   - $\mathcal{P}_u$ denotes the user-preferred attribute. 
-  - $\mathcal{P}_{\mathrm{rej}}$ is the attributes rejected by the user 
-  - $\mathcal{V}_{\mathrm{rej}}$ are the attributes rejected by the user
+  - $\mathcal{P}_{\mathrm{rej}}$ denotes the attributes rejected by the user 
+  - $\mathcal{V}_{\mathrm{rej}}$ denotes the items rejected by the user
 
-- `Graph Past history of existing user` : calculate all users $ \textbf{e}_\textbf{U} $
+- `Graph of existing users` : calculate all users $ \textbf{e}_\textbf{U} $ 
 
-- Similarity function : $ argmax(f(e_{new}, \textbf{e}_\textbf{U}))$ where $f(e_{\text{new}}, \textbf{e}_\textbf{U}) \in [0, 1] $
+- `Similarity function` : The goal of finding the highest matching candidate embedding $e_{\text{candidate}}$ involves calculating it using the formula: $$ e_{\text{candidate}} = \arg\max_{e_i \in \textbf{E}_\textbf{U}} f(e_{\text{new}}, e_i) $$ where
+  - $ e_{\text{new}} $: This represents a new embedding vector that you want to match against existing candidate embeddings.
+  - $ \textbf{E}_\textbf{U} $: This denotes a set (or vector) of existing candidate embeddings.
+  - $ f(e_{\text{new}}, e_i) $: This function computes a similarity score or a measure of matching between the new embedding $ e_{\text{new}} $ and each candidate embedding $ e_i \in \textbf{E}_\textbf{U} $. Importantly, $ f(e_{\text{new}}, e_i) $ returns a value in the range $[0, 1]$, where higher values indicate a stronger match or similarity between $ e_{\text{new}} $ and $ e_i $.
+  
+  The expression $ \arg\max_{e_i \in \textbf{E}_\textbf{U}} f(e_{\text{new}}, e_i) $ finds the candidate embedding $ e_i $ from the set $ \textbf{E}_\textbf{U} $ that maximizes the matching function $ f $ with $ e_{\text{new}} $.
+  
+  To summarize, the process described aims to identify the candidate embedding $ e_{\text{candidate}} $ that best matches $ e_{\text{new}} $ based on the similarity function $ f $. This approach is common in various applications such as information retrieval, recommendation systems, and natural language processing tasks where embeddings play a crucial role in representing and comparing data points.
 
-- `Generating Graph Reasoning (GR)`: 
+- `Generating Graph Reasoning (GR)`: generate path reasoning of $e_{candidate}$
 
-- `Trim` : After obtaining GR of $e_u$, we eliminate the nodes which are $\mathcal{P}_{\mathrm{rej}}$ and $\mathcal{V}_{\mathrm{rej}}$ 
+- `Trim` : After obtaining GR of $e_{candidate}$, we eliminate the nodes of $\mathcal{P}_{\mathrm{rej}}$ and $\mathcal{V}_{\mathrm{rej}}$ 
 </details>
 
 <details>
