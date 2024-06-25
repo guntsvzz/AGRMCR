@@ -456,7 +456,7 @@ We want to construct a pair consisting of an entity and a relation based on the 
 - `Trim` : After obtaining GR of $e_{candidate}$, we eliminate the nodes of $\mathcal{P}_{\mathrm{rej}}$ and $\mathcal{V}_{\mathrm{rej}}$ 
 </details>
 
-```
+```bash
 #MCR
 ## user's profile
 user_acc_feature = test_env.user_acc_feature 
