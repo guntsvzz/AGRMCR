@@ -1,12 +1,13 @@
 # AGRMCR - Adapting Graph Reasoning for Explainable Cold Start Recommendation on Multi-Round Conversation Recommendation
 
-## Requirement 
+## Prerequisites 
+1. Requirements
 ```bash
 pip install -r requirements.txt
 ```
-or
+2. Docker Compose
 ```bash
-docker compose up --build
+docker compose up -d --build
 ```
 
 ## Data Preparation
