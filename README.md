@@ -454,7 +454,6 @@ We want to construct a pair consisting of an entity and a relation based on the 
 - `Graph Reasoning (GR)`: Given $e_{\text{candidate}}$, the GR agent will generate paths for recommendation according to the trained policy.
 
 - `Trim` : After obtaining GR of $e_{candidate}$, we eliminate the nodes of $\mathcal{P}_{\mathrm{rej}}$ and $\mathcal{V}_{\mathrm{rej}}$ 
-</details>
 
 ```bash
 #MCR
@@ -516,6 +515,7 @@ def trim_embed(path_reasoning, user_acc_feature, user_rej_feature):
 
 new_path_reasoning = trim_embed(path_reasoning, user_acc_feature, user_rej_feature)
 ```
+</details>
 
 
 <details>
