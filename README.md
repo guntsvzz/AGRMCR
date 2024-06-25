@@ -1,14 +1,31 @@
 # AGRMCR - Adapting Graph Reasoning for Explainable Cold Start Recommendation on Multi-Round Conversation Recommendation
 
-## Prerequisites 
-1. Requirements
+## Environment Setup 
+<details>
+<summary> 1. Requirements </summary>
+
 ```bash
 pip install -r requirements.txt
 ```
-2. Docker Compose
-```bash
-docker compose up -d --build
-```
+
+</details>
+
+<details>
+<summary> 2. Docker Compose </summary>
+
+For those who prefer containerization, Docker offers an isolated and consistent environment. Ensure Docker is installed on your system by following the [official Docker installation guide](https://docs.docker.com/get-docker/).
+
+1. **Start the Application with Docker Compose:**
+    ```bash
+    docker compose up -d 
+    ```
+    If you've made changes and want them to reflect, append `--build` to the command above.
+2. **Stopping the Application:**
+   To stop and remove all running containers, execute:
+   ```bash
+   docker-compose down
+   ```
+</details>
 
 ## Data Preparation
 Four Amazon datasets (Amazon_Beauty, Amazon_CDs, Amazon_Cellphones, Amazon_Clothing) are available in the "JRL/raw_data/" directory and the split is consistent with [1] and [2]. All four datasets used in this paper can be downloaded [here](https://cseweb.ucsd.edu/~jmcauley/datasets/amazon/links.html) which consist of metadata and 5-core review.
