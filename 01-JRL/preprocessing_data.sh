@@ -30,6 +30,8 @@ SOURCE_DIR=./tmp/${DATASET_NAME}_min_count${MIN_COUNT}
 SAMPLE_RATE=0.3
 python3 ./scripts/split_train_test.py $SOURCE_DIR/ $SAMPLE_RATE
 echo "-------------------------------------------------------------------------"
+# <SOURCE_DIR>: the directory for indexed data.
+# <SAMPLE_RATE>: the proportion of reviews used in test for each user (e.g. in our paper, we used 0.3).
 
 echo "------------- step 3: Extract gzip to txt ------------------"
 # Convert DATASET_NAME to lowercase
@@ -63,4 +65,4 @@ echo "------------------------------------------------------------"
 echo "------------- step 4: Matching Relations --------------"
 python3 ./scripts/match_cate_brand_related.py $DATASET_NAME
 echo "-------------------------------------------------------"
-# DATASET_NAME: the domain name 
+# <DATASET_NAME>: the domain name of Amazon dataset

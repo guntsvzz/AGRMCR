@@ -283,7 +283,7 @@ echo "--------------------------------------------------------"
 <details>
 <summary>Description</summary>
 
-### 1. `preprocess/domain.py`
+### STEP 1 : Preprocessing `preprocess/domain.py`
 
 This script processes the review data to generate various entity files.
 #### Generated Files:
@@ -292,7 +292,7 @@ This script processes the review data to generate various entity files.
 - `purchases.txt`           :
 - `interested_in_u_c.txt`   :
 
-### 2. `make_dataset.py`
+### STEP 2 : Make dataset `make_dataset.py`
 
 This script processes the purchase.txt to generate pair(user,item) of train/test/validation.txt
 #### Generated Files:
@@ -304,9 +304,15 @@ This script processes the purchase.txt to generate pair(user,item) of train/test
 - `valiation_dataset.pkl`   :
 - `kg.pkl`                  :
 
-### 3. Transitional Embedding (TransE) [3]
+### STEP 3 : Transitional Embedding (TransE) [3] `train_transe_model.py`
+#### Generated Files:
+- `train_transe_model.pkl`
 
-### 4. Train & Evaluation RL agent 
+### STEP 4 : Train RL agent `train_agent.py`
+#### Generated Files:
+
+### STEP 5 : Evaluation RL agent `test_agent.py`
+#### Generated Files:
 
 </details>
 
@@ -426,7 +432,7 @@ To evaluate our cold embeddings assignment strategy, we will also compare it to 
 
 ### User-similarity
 
-- `New users embedding from MCR` : 
+- `User Profile : new users embedding from MCR` : 
 We want to construct a pair consisting of an entity and a relation based on the last state $s_t$ which consist of $[\mathcal{H}_u^{(t)},\mathcal{G}_u^{(t)}]$ where
   - $\mathcal{H}_u^{(t)} = [\mathcal{P}_u^{(t)}, \mathcal{P}_{\mathrm{rej}}^{(t)}, \mathcal{V}_{\mathrm{rej}}^{(t)}]$ denotes the conversation history until timestep $t$ 
   - $\mathcal{G}_u^{(t)}$ denotes the dynamic subgraph of $\mathcal{G}$ for the user $u$ at timestep $t$
@@ -450,6 +456,69 @@ We want to construct a pair consisting of an entity and a relation based on the 
 - `Trim` : After obtaining GR of $e_{candidate}$, we eliminate the nodes of $\mathcal{P}_{\mathrm{rej}}$ and $\mathcal{V}_{\mathrm{rej}}$ 
 </details>
 
+Pseudo Code
+```
+#MCR
+## user's profile
+user_acc_feature = test_env.user_acc_feature 
+user_rej_feature = test_env.user_rej_feature 
+cand_items = test_env.cand_items 
+
+def initialize_embed(user_acc_feature, user_rej_feature, cand_items, mode='posneg'):
+    if mode == 'null':
+        pass
+    elif mode == 'avg':
+        pass
+    elif mode == 'posneg':
+        pass
+    embed = ...
+    return embed
+
+## initialize_embed
+new_user_embeds = initialize_embed(user_acc_feature, user_rej_feature, cand_items, mode='posneg')
+
+#Use-Sim
+import torch
+import torch.nn.functional as F
+## Define the similarity function
+def sim_function(e_new,e_candidates):
+    # Calculate the cosine similarity
+    cos_sim = F.cosine_similarity(e_new.unsqueeze(0), e_candidates)
+    return cos_sim
+
+## Define the function to find the best matching candidate embedding
+def find_best_match(e_new, e_candidates):
+    # Calculate similarity scores
+    similarity_scores = sim_function(e_new, e_candidates)
+    # Find the index of the maximum similarity score
+    best_match_index = torch.argmax(similarity_scores)
+    # Retrieve the best matching candidate embedding
+    best_match_embedding = e_candidates[best_match_index]
+    return best_match_embedding, similarity_scores[best_match_index]
+
+### Example embeddings
+e_new = torch.tensor([1.0, 2.0])
+e_candidates = torch.tensor([
+    [3.0, 4.0],
+    [1.0, 0.5],
+])
+
+### Find the best matching candidate embedding
+best_match_embedding, best_match_score = find_best_match(e_new, e_candidates)
+
+# Graph Reasoning (GR)
+candidate_user = best_match_embedding
+path_reasoning = RL_agent(candidate_user)
+
+# Trim
+def trim_embed(path_reasoning, user_acc_feature, user_rej_feature):
+    new_path_reasoning = ...
+    return new_path_reasoning
+    
+new_path_reasoning = trim_embed(path_reasoning, user_acc_feature, user_rej_feature)
+```
+
+
 <details>
 <summary>Comparing SOTA techniques</summary>
 
@@ -460,7 +529,7 @@ We want to construct a pair consisting of an entity and a relation based on the 
 To run a baseline on Beauty, choose a yaml config file in config/beauty/baselines and run the following:
 
 ```bash
-python src/baselines/baseline.py --config config/baselines/Pop.yaml
+python3 src/baselines/baseline.py --config config/baselines/Pop.yaml
 ```
 
 This example runs the Pop baseline on the Beauty dataset.
