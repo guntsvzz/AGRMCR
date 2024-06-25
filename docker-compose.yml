@@ -1,0 +1,16 @@
+version: '3.9'
+
+services:
+  agrmcr:
+    image: agrmcr:latest
+    build:
+      context: .
+      dockerfile: .Dockerfile
+    platform: linux/amd64
+    ports:
+      - 8080:8000
+    command : sleep infinity
+    env_file:
+      - .env.dev
+    volumes:
+      - ./src:/src/app

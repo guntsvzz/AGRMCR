@@ -373,11 +373,11 @@ echo "----------------------------------------------------------"
 <details>
 <summary> Description </summary>
 
-### Step 1 : Training RL Agent `RL_model.py`
+### STEP 1 : Training RL Agent `RL_model.py`
 
 This script will train RL policy network. Given $p_0$, the agent will decide which items to recommend.
 
-### Step 2 : Evaluation RL Agent`evaluate.py`
+### STEP 2 : Evaluation RL Agent`evaluate.py`
 
 This script will evaluate RL policy network. Given $p_0$, the agent will decide which items to recommend
 
