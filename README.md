@@ -456,7 +456,6 @@ We want to construct a pair consisting of an entity and a relation based on the 
 - `Trim` : After obtaining GR of $e_{candidate}$, we eliminate the nodes of $\mathcal{P}_{\mathrm{rej}}$ and $\mathcal{V}_{\mathrm{rej}}$ 
 </details>
 
-Pseudo Code
 ```
 #MCR
 ## user's profile
@@ -514,7 +513,7 @@ path_reasoning = RL_agent(candidate_user)
 def trim_embed(path_reasoning, user_acc_feature, user_rej_feature):
     new_path_reasoning = ...
     return new_path_reasoning
-    
+
 new_path_reasoning = trim_embed(path_reasoning, user_acc_feature, user_rej_feature)
 ```
 
