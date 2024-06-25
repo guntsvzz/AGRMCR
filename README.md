@@ -464,13 +464,13 @@ cand_items = test_env.cand_items
 
 def initialize_embed(user_acc_feature, user_rej_feature, cand_items, mode='posneg'):
     if mode == 'null':
-        pass
+        embeds = 0
     elif mode == 'avg':
         pass
     elif mode == 'posneg':
         pass
-    embed = ...
-    return embed
+    embeds = ...
+    return embeds
 
 ## initialize_embed
 new_user_embeds = initialize_embed(user_acc_feature, user_rej_feature, cand_items, mode='posneg')
