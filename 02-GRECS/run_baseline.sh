@@ -1,10 +1,8 @@
-
 echo "------------- 1 : Process the files for Recbole -------------"
 # Process the processed files for RecBole (after processing the original files for Graph Reasoning) 
+echo "-------------- Formatting Beauty --------------------------"
 python3 src/baselines/format_beauty.py \
-    --config config/beauty/baselines/format.json
-# After this process, all the files from beauty have been standardized into the format needed by RecBole. 
-# We follow the same process for the other datasets:  
+    --config config/beauty/baselines/format.json 
 echo "-------------- Formatting CDs --------------------------"
 python3 src/baselines/format_cds.py \
     --config config/cds/baselines/format.json
@@ -17,6 +15,8 @@ python3 src/baselines/format_clothing.py \
 echo "--------------------------------------------------------"
 # python3 src/baselines/format_coco.py \
 #     --config config/coco/baselines/format.json
+# After this process, all the files from beauty have been standardized into the format needed by RecBole. 
+# We follow the same process for the other datasets: 
 
 echo "------------- 2 : Run the baselines -------------"
 # To run a baseline on Beauty, choose a yaml config file in config/beauty/baselines and run the following:
