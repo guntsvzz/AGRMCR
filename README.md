@@ -1,5 +1,20 @@
 # AGRMCR - Adapting Graph Reasoning for Explainable Cold Start Recommendation on Multi-Round Conversation Recommendation
 
+
+## TO-DO
+- [x] Preparation metadata and 5-core Amazon dataset
+    - [x] adding `feature` to MCR dataset
+    - [ ] config `feature` for UPGPR
+- [x] Train & Evaluate RL agent for MCR
+- [ ] Train & Evaluate RL agent for UPGPR
+    - [ ] changing cold-start embedding value for AGRMCR
+- [ ] User preferred construction (Class)
+    - [ ] Linking with feature but also know is it brand or category (checking by len(brand))
+- [ ] Translation & Trim
+    - [x] code Translation
+    - [ ] code Trim
+- [ ] Baseline comparison
+
 ## Environment Setup 
 <details>
 <summary> 1. Requirements </summary>
@@ -329,6 +344,7 @@ This script processes the purchase.txt to generate pair(user,item) of train/test
 ### STEP 3 : Transitional Embedding (TransE) [3] `train_transe_model.py`
 #### Generated Files:
 - `train_transe_model.pkl`
+- `train_kg.pkl`
 
 ### STEP 4 : Train RL agent `train_agent.py`
 #### Generated Files:
@@ -407,8 +423,16 @@ This script will evaluate RL policy network. Given $p_0$, the agent will decide 
 
 ## Methodology
 
+1. Construct New user preferred (NUP) in the form of graph.
+2. Initializing NUP embeddings for Users/Items by translation
+3. Extracting Existing User embeddings
+4. Similarity
+5. Generate Path Reasoning
+6. Trim
+
+
 <details>
-<summary>Initializing Embeddings for Users/Items</summary>
+<summary>Translation</summary>
 
 **How can we best initialize the embedding of new user by utilizing other similar users?**
 
@@ -452,93 +476,42 @@ To evaluate our cold embeddings assignment strategy, we will also compare it to 
 
 **Does past history of other user preferences in the form of graph improve the success rate of recommendation ?**
 
-### User-similarity
+### User Embedding
 
 - `User Profile : new users embedding from MCR` : 
-We want to construct a pair consisting of an entity and a relation based on the last state $s_t$ which consist of $[\mathcal{H}_u^{(t)},\mathcal{G}_u^{(t)}]$ where
+We construct a pair consisting of an entity and a relation based on the last state $s_t$ which consist of $[\mathcal{H}_u^{(t)},\mathcal{G}_u^{(t)}]$ where
   - $\mathcal{H}_u^{(t)} = [\mathcal{P}_u^{(t)}, \mathcal{P}_{\mathrm{rej}}^{(t)}, \mathcal{V}_{\mathrm{rej}}^{(t)}]$ denotes the conversation history until timestep $t$ 
   - $\mathcal{G}_u^{(t)}$ denotes the dynamic subgraph of $\mathcal{G}$ for the user $u$ at timestep $t$
   - $\mathcal{P}_u$ denotes the user-preferred attribute. 
   - $\mathcal{P}_{\mathrm{rej}}$ denotes the attributes rejected by the user 
   - $\mathcal{V}_{\mathrm{rej}}$ denotes the items rejected by the user
   
-  We will get each pair $(r', e'_t)$ which it would be $(r', p_{rej}), (r', v_{rej}), (r', p_u)$ then we calculate new user embedding $e_{new}$ from `Positive/Negative Translations`
+  We will get set of pair $(r', e'_t)$ which it would be $(r'_{pos}, p_u), (r'_{neg}, p_{rej}), (r'_{neg}, v_{rej})$ then we calculate new user embedding $e_{new}$ from `Positive/Negative Translations`
 
-- `Existing users embeddings from TransE` : Take all users $ \textbf{e}_\textbf{U} $ which trained by `transE` 
+- `Existing users embeddings from TransE` : Take all users $ \textbf{E}_\textbf{U} $ which trained by `transE` 
 
-- `Similarity function` : The goal of finding the highest matching candidate embedding $e_{\text{candidate}}$ involves calculating it using the formula: $$ e_{\text{candidate}} = \arg\max_{e_i \in \textbf{E}_\textbf{U}} f(e_{\text{new}}, e_i) $$ where
+- `Similarity function` : The goal of finding the highest matching candidate embedding $e_{\text{candidate}}$ involves calculating it using the formula: $$ e_{\text{candidate}} = \arg\max_{e_i \in \textbf{E}_\textbf{U}} f(e_{\text{new}}, \textbf{E}_\textbf{U}) $$ where
   - $ e_{\text{new}} $ denotes as a new embedding vector that you want to match against existing candidate embeddings.
   - $ \textbf{E}_\textbf{U} $ denotes as a set (or vector) of existing candidate user embeddings.
   - $ f(e_{\text{new}}, e_i) $ denotes as a function computes a similarity score or a measure of matching between the new user embedding $ e_{\text{new}} $ and each candidate user embedding $ e_i \in \textbf{E}_\textbf{U} $. Importantly, $ f(e_{\text{new}}, e_i) $ returns a value in the range $[0, 1]$, where higher values indicate a stronger match or similarity between $ e_{\text{new}} $ and $ e_i $.
   
   The expression $ \arg\max_{e_i \in \textbf{E}_\textbf{U}} f(e_{\text{new}}, e_i) $ finds the candidate embedding $ e_i $ from the set $ \textbf{E}_\textbf{U} $ that maximizes the matching function $ f $ with $ e_{\text{new}} $.
 
+</details>
+
+<details>
+<summary>Graph Reasoning</summary>
+
 - `Graph Reasoning (GR)`: Given $e_{\text{candidate}}$, the GR agent will generate paths for recommendation according to the trained policy.
+
+</details>
+
+<details>
+<summary>Trim</summary>
 
 - `Trim` : After obtaining GR of $e_{candidate}$, we eliminate the nodes of $\mathcal{P}_{\mathrm{rej}}$ and $\mathcal{V}_{\mathrm{rej}}$ 
 
-```bash
-#MCR
-## user's profile
-user_acc_feature = test_env.user_acc_feature 
-user_rej_feature = test_env.user_rej_feature 
-cand_items = test_env.cand_items 
-
-def initialize_embed(user_acc_feature, user_rej_feature, cand_items, mode='posneg'):
-    if mode == 'null':
-        embeds = 0
-    elif mode == 'avg':
-        pass
-    elif mode == 'posneg':
-        pass
-    embeds = ...
-    return embeds
-
-## initialize_embed
-new_user_embeds = initialize_embed(user_acc_feature, user_rej_feature, cand_items, mode='posneg')
-
-#Use-Sim
-import torch
-import torch.nn.functional as F
-## Define the similarity function
-def sim_function(e_new,e_candidates):
-    # Calculate the cosine similarity
-    cos_sim = F.cosine_similarity(e_new.unsqueeze(0), e_candidates)
-    return cos_sim
-
-## Define the function to find the best matching candidate embedding
-def find_best_match(e_new, e_candidates):
-    # Calculate similarity scores
-    similarity_scores = sim_function(e_new, e_candidates)
-    # Find the index of the maximum similarity score
-    best_match_index = torch.argmax(similarity_scores)
-    # Retrieve the best matching candidate embedding
-    best_match_embedding = e_candidates[best_match_index]
-    return best_match_embedding, similarity_scores[best_match_index]
-
-### Example embeddings
-e_new = torch.tensor([1.0, 2.0])
-e_candidates = torch.tensor([
-    [3.0, 4.0],
-    [1.0, 0.5],
-])
-
-### Find the best matching candidate embedding
-best_match_embedding, best_match_score = find_best_match(e_new, e_candidates)
-
-# Graph Reasoning (GR)
-candidate_user = best_match_embedding
-path_reasoning = RL_agent(candidate_user)
-
-# Trim
-def trim_embed(path_reasoning, user_acc_feature, user_rej_feature):
-    new_path_reasoning = ...
-    return new_path_reasoning
-
-new_path_reasoning = trim_embed(path_reasoning, user_acc_feature, user_rej_feature)
-```
 </details>
-
 
 <details>
 <summary>Comparing SOTA techniques</summary>

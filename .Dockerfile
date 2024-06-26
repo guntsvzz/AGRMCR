@@ -33,6 +33,7 @@ RUN pip install --upgrade pip
 
 RUN apt-get update 
 RUN apt-get install -y \
+  python-tk \
   python3-tk \
   gcc \
   build-essential \
