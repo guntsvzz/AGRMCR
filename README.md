@@ -2,18 +2,24 @@
 
 
 ## TO-DO
+- Preprocessing dataset (JRL)
+    - [x] Beauty
+    - [x] CDs_and_Vinyl
+    - [x] Clothing_Shoes_and_Jewelry
+    - [x] Cell_Phones_and_Accessories
 - [x] Preparation metadata and 5-core Amazon dataset
     - [x] adding `feature` to MCR dataset
     - [ ] config `feature` for UPGPR
 - [x] Train & Evaluate RL agent for MCR
 - [ ] Train & Evaluate RL agent for UPGPR
     - [ ] changing cold-start embedding value for AGRMCR
-- [ ] User preferred construction (Class)
+- User preferred construction (Class)
     - [ ] Linking with feature but also know is it brand or category (checking by len(brand))
-- [ ] Translation & Trim
+- Translation & Trim
     - [x] code Translation
     - [ ] code Trim
-- [ ] Baseline comparison
+- Baseline
+    - [x] run_baseline.sh
 
 ## Environment Setup 
 <details>
@@ -98,6 +104,12 @@ Four Amazon datasets (Amazon_Beauty, Amazon_CDs, Amazon_Cellphones, Amazon_Cloth
 
 ## How to run the code
 ## JRL - Preprocessing dataset
+
+1. Index datasets 
+2. Split datasets for training and test 
+3. Extract gzip to txt
+4. Matching Relations brands, categories, related products
+5. Matching Feature
 
 ```bash
 source JRL/preprocessing_data.sh
@@ -204,6 +216,13 @@ This script processes the data to generate relation files, which describe variou
 </details>
 
 ## GRECS - Graph Reasoning (GR)
+
+1. Process original files
+2. Dataset Split, Cold users/items, and Knowledge Graph Creation
+3. Train the Knowledge Graph Embeddings
+4. Train the RL agent
+5. Evaluation
+
 ```bash
 source GRECS/run_grec.sh
 ```
@@ -339,12 +358,17 @@ This script processes the purchase.txt to generate pair(user,item) of train/test
 - `train_dataset.pkl`       :
 - `test_dataset.pkl`        :
 - `valiation_dataset.pkl`   :
-- `kg.pkl`                  :
+- `train_kg.pkl`            :
+- `test_kg.pkl`             :
+- `validation_kg.pkl`       :
+
 
 ### STEP 3 : Transitional Embedding (TransE) [3] `train_transe_model.py`
 #### Generated Files:
-- `train_transe_model.pkl`
-- `train_kg.pkl`
+- `train_transe_model/transe_model_sd_epoch_{}.ckpt` : original embedded
+- `train_transe_model.pkl` : null/avg translation train embedded
+- `test_transe_model.pkl` : null/avg translation test embedded
+- `validation_transe_embed.pkl` : null/avg translation valid embedded
 
 ### STEP 4 : Train RL agent `train_agent.py`
 #### Generated Files:
@@ -355,6 +379,9 @@ This script processes the purchase.txt to generate pair(user,item) of train/test
 </details>
 
 ## UNICORN - Multi-round Conversation Recommendation (MCR)
+1. Training RL Agent
+2. Evaluation RL Agent
+
 ```bash
 source UNICORN/run_unicorn.sh
 ```

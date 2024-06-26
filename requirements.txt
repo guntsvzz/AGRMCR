@@ -7,3 +7,5 @@ tqdm
 easydict
 torch
 transformers
+recbole
+kmeans_pytorch
