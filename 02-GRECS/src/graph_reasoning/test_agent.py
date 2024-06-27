@@ -4,11 +4,11 @@ from collections import Counter
 import os
 import argparse
 from math import log
-from tqdm import tqdm
+from tqdm.auto import tqdm
 from easydict import EasyDict as edict
 import torch
 from functools import reduce
-from kg_env import BatchKGEnvironment
+from kg_env_m import BatchKGEnvironment
 from actor_critic import ActorCritic
 from utils import *
 import wandb
@@ -422,8 +422,8 @@ def evaluate_paths(
         path_score = scores[uid][pid]
         path_prob = reduce(lambda x, y: x * y, probs)
         pred_paths[uid][pid].append((path_score, path_prob, path))
+        
     # 3) Pick best path for each user-product pair, also remove pid if it is in train set.
-
     best_pred_paths = {}
     for uid in pred_paths:
         train_pids = set(train_labels.get(uid, []))

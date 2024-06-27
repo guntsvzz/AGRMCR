@@ -175,6 +175,14 @@ def extract_embeddings(config):
 
     return embeds
 
+def make_normal_embeds(config, embeds, use_wandb=False):
+    transe_config = config.TRAIN_EMBEDS
+    # nothing to modify for the training set
+    save_embed(
+        config.processed_data_dir,
+        f"transe_default_embed.pkl",
+        embeds,
+    )
 
 def make_cold_embeds(config, embeds, use_wandb=False):
     transe_config = config.TRAIN_EMBEDS
@@ -306,6 +314,7 @@ def main():
     train(config)
     embeds = extract_embeddings(config)
     make_cold_embeds(config, embeds)
+    # make_normal_embeds(config, embeds)
 
     if config.use_wandb:
         wandb.finish()

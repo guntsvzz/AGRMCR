@@ -8,39 +8,14 @@ import torch.optim as optim
 from easydict import EasyDict as edict
 
 from actor_critic import ActorCritic
-from kg_env import BatchKGEnvironment
+from actor_loader import ACDataLoader
+from kg_env_m import BatchKGEnvironment
+# from kg_env import BatchKGEnvironment
 from utils import *
 from validate import *
+from tqdm.auto import tqdm
 
 logger = None
-
-
-class ACDataLoader(object):
-    def __init__(self, uids, batch_size):
-        self.uids = np.array(uids)
-        self.num_users = len(uids)
-        self.batch_size = batch_size
-        self.reset()
-
-    def reset(self):
-        self._rand_perm = np.random.permutation(self.num_users)
-        self._start_idx = 0
-        self._has_next = True
-
-    def has_next(self):
-        return self._has_next
-
-    def get_batch(self):
-        if not self._has_next:
-            return None
-        # Multiple users per batch
-        end_idx = min(self._start_idx + self.batch_size, self.num_users)
-        batch_idx = self._rand_perm[self._start_idx : end_idx]
-        batch_uids = self.uids[batch_idx]
-        self._has_next = self._has_next and end_idx < self.num_users
-        self._start_idx = end_idx
-        return batch_uids.tolist()
-
 
 def train(config):
     config_agent = config.AGENT
@@ -87,7 +62,7 @@ def train(config):
     )
     step = 0
     model.train()
-    for epoch in range(1, config_agent.epochs + 1):
+    for epoch in tqdm(range(1, config_agent.epochs + 1)):
         ### Start epoch ###
         dataloader.reset()
         while dataloader.has_next():
@@ -166,7 +141,6 @@ def train(config):
         )
         policy_file = "{}/policy_model_epoch_{}.ckpt".format(config.log_dir, epoch)
         torch.save(model.state_dict(), tmp_policy_file)
-
 
 def main():
     parser = argparse.ArgumentParser()

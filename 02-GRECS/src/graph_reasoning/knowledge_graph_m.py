@@ -21,7 +21,10 @@ class KnowledgeGraph(object):
         if use_entity_relations == True:
             self._load_entity_info(dataset)
         self._clean()
-        self._combine_features()
+        self._categories_offset() #offset value of category
+        self._item_categories_offset()   #offset category value of item
+        self._combine_features()     #create feature node
+        self._item_features()        #create feature key of item
         self.top_matches = None
     
     def _load_entities(self, dataset):
@@ -138,7 +141,7 @@ class KnowledgeGraph(object):
         # Iterate over the 'category' dictionary and rename keys
         for key, sub_dict in self.G.get('category', {}).items():
             rename_keys(sub_dict, old_new_key_pairs)
-            
+           
     def _combine_features(self):
         print("Combining brand and category into feature...")
         # Initialize feature dictionary
@@ -149,7 +152,8 @@ class KnowledgeGraph(object):
             self.G['feature'][eid] = relations
 
         # Add category entities with renaming
-        category_offset = len(self.G.get('brand', {}))
+        # category_offset = len(self.G.get('brand', {}))
+        category_offset = 0 
         for eid, relations in tqdm(self.G.get('category', {}).items()):
             # Rename keys in category relations
             renamed_relations = {}
@@ -160,7 +164,29 @@ class KnowledgeGraph(object):
                     renamed_relations[old_key] = relations[old_key]
             self.G['feature'][category_offset + eid] = renamed_relations
         assert len(self.G['feature']) == len(self.G['brand']) + len(self.G['category']), "feature size are not equal to brand & category"
-
+     
+    def _categories_offset(self):
+        print("Offsetting category keys...")
+        offset = len(self.G.get('brand', {}))
+        original_category_keys = list(self.G['category'].keys())
+        for key in original_category_keys:
+            new_key = key + offset
+            self.G['category'][new_key] = self.G['category'].pop(key)
+ 
+    def _item_categories_offset(self):
+        print("Offsetting category_of values...")
+        offset = len(self.G.get('brand', {}))
+        for item_id, relations in self.G.get('item', {}).items():
+            if 'category_of' in relations:
+                self.G['item'][item_id]['category_of'] = tuple(eid + offset for eid in relations['category_of'])
+                
+    def _item_features(self):
+        print("Combining belong_to and category_of into feature for items...")
+        for item_id in self.G.get('item', {}):
+            belong_to = self.G['item'][item_id].get('belong_to', [])
+            category_of = self.G['item'][item_id].get('category_of', [])
+            self.G['item'][item_id]['feature'] = belong_to + category_of
+    
     def _clean(self):
         print("Remove duplicates...")
         for etype in self.G:
@@ -193,6 +219,7 @@ class KnowledgeGraph(object):
         return data
 
     def __call__(self, eh_type, eh_id=None, relation=None):
+        # print(eh_type, eh_id, relation)
         return self.get(eh_type, eh_id, relation)
 
     def get_tails(self, entity_type, entity_id, relation):

@@ -9,9 +9,9 @@
     - [x] Cell_Phones_and_Accessories
 - [x] Preparation metadata and 5-core Amazon dataset
     - [x] adding `feature` to MCR dataset
-    - [ ] config `feature` for UPGPR
+    - [x] config `feature` for UPGPR
 - [x] Train & Evaluate RL agent for MCR
-- [ ] Train & Evaluate RL agent for UPGPR
+- [x] Train & Evaluate RL agent for UPGPR
     - [ ] changing cold-start embedding value for AGRMCR
 - User preferred construction (Class)
     - [ ] Linking with feature but also know is it brand or category (checking by len(brand))

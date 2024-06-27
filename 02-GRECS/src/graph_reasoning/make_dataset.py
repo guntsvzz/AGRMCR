@@ -8,7 +8,7 @@ import json
 
 from utils import *
 from data_utils import Dataset
-# from knowledge_graph_m import KnowledgeGraph
+# from knowledge_graph import KnowledgeGraph
 from knowledge_graph_m import KnowledgeGraph
 from easydict import EasyDict as edict
 
@@ -34,15 +34,11 @@ def get_cold_users(user_items, cold_users_prop):
     users = list(user_items.keys())
     nb_users = len(users)
     random.shuffle(users)
-    cold_start_users["train"] = set(users[: int((1 - 2 * cold_users_prop) * nb_users)])
-    cold_start_users["validation"] = set(
-        users[
-            int((1 - 2 * cold_users_prop) * nb_users) : int(
-                (1 - cold_users_prop) * nb_users
-            )
-        ]
-    )
-    cold_start_users["test"] = set(users[int((1 - cold_users_prop) * nb_users) :])
+    A = int((1 - 2 * cold_users_prop) * nb_users)
+    B = int((1 - cold_users_prop) * nb_users)
+    cold_start_users["train"]       = set(users[:A])
+    cold_start_users["validation"]  = set(users[A:B])
+    cold_start_users["test"]        = set(users[B:])
     return cold_start_users
 
 
@@ -176,17 +172,21 @@ def main():
         cold_users_prop=config.cold_users_prop,
         cold_items_prop=config.cold_items_prop,
     )
+    # cold_start_users.json
+    # cold_start_items.json
 
     # Create MoocDataset instance for dataset.
     # ========== BEGIN ========== #
-
     for set_name in ["train", "test", "validation"]:
 
         print(f"Loading dataset from folder: {config.processed_data_dir}")
-        dataset = Dataset(config.processed_data_dir, config.KG_ARGS, set_name)
-        save_dataset(config.processed_data_dir, dataset, config.use_wandb) #dataset.pkl
-
-        kg = KnowledgeGraph(
+        dataset = Dataset( 
+            data_dir = config.processed_data_dir, 
+            data_args = config.KG_ARGS, 
+            set_name = set_name)
+        save_dataset(config.processed_data_dir, dataset, config.use_wandb) 
+        #dataset.pkl
+        kg = KnowledgeGraph( 
             dataset,
             config.KG_ARGS,
             set_name=set_name,
@@ -194,7 +194,8 @@ def main():
             use_entity_relations=config.use_entity_relations,
         )
         kg.compute_degrees() 
-        save_kg(config.processed_data_dir, kg, config.use_wandb) #kg.pkl
+        save_kg(config.processed_data_dir, kg, config.use_wandb) 
+        #kg.pkl
     # =========== END =========== #
 
     # Genereate train/test labels.
@@ -211,7 +212,10 @@ def main():
         use_wandb=config.use_wandb,
     )
     save_labels(
-        config.processed_data_dir, test_labels, mode="test", use_wandb=config.use_wandb
+        config.processed_data_dir, 
+        test_labels, 
+        mode="test", 
+        use_wandb=config.use_wandb
     )
     save_labels(
         config.processed_data_dir,
@@ -219,7 +223,6 @@ def main():
         mode="validation",
         use_wandb=config.use_wandb,
     )
-
     # =========== END =========== #
     if config.use_wandb:
         wandb.finish()
