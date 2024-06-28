@@ -8,6 +8,7 @@ import sys
 # from data_process import LastFmDataset
 # from KG_data_generate.lastfm_small_data_process import LastFmSmallDataset
 # from KG_data_generate.lastfm_knowledge_graph import KnowledgeGraph
+
 #Dataset names
 LAST_FM = 'LAST_FM'
 LAST_FM_STAR = 'LAST_FM_STAR'
@@ -15,22 +16,34 @@ YELP = 'YELP'
 YELP_STAR = 'YELP_STAR'
 AMAZON = 'AMAZON'
 AMAZON_STAR = 'AMAZON_STAR'
-
+BEAUTY = 'BEAUTY'
+CELLPHONES = 'CELLPHONES'
+CLOTH = 'CLOTH'
+CDS = 'CDS'
+    
 DATA_DIR = {
-    LAST_FM: './data/lastfm',
-    YELP: './data/yelp',
+    LAST_FM     : './data/lastfm',
+    YELP        : './data/yelp',
     LAST_FM_STAR: './data/lastfm_star',
-    YELP_STAR: './data/yelp',
-    AMAZON:'./data/amazon',
-    AMAZON_STAR:'./data/amazon_star'
+    YELP_STAR   : './data/yelp',
+    AMAZON      : './data/amazon',
+    AMAZON_STAR : './data/amazon_star',
+    BEAUTY      : './data/beauty',
+    CELLPHONES  : './data/cellphones',
+    CLOTH       : './data/cloth',
+    CDS         : './data/cds',
 }
 TMP_DIR = {
-    LAST_FM: './tmp/last_fm',
-    YELP: './tmp/yelp',
+    LAST_FM     : './tmp/last_fm',
+    YELP        : './tmp/yelp',
     LAST_FM_STAR: './tmp/last_fm_star',
-    YELP_STAR: './tmp/yelp_star',
-    AMAZON:'./tmp/amazon',
-    AMAZON_STAR: './tmp/amazon_star',
+    YELP_STAR   : './tmp/yelp_star',
+    AMAZON      : './tmp/amazon',
+    AMAZON_STAR : './tmp/amazon_star',
+    BEAUTY      : './tmp/beauty',
+    CELLPHONES  : './tmp/cellphones',
+    CLOTH       : './tmp/cloth',
+    CDS         : './tmp/cds',
 }
 def cuda_(var):
     return var.cuda() if torch.cuda.is_available() else var

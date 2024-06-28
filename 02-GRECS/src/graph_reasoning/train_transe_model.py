@@ -277,14 +277,18 @@ def main():
         help="Config file.",
         default="config/coco_01_01/UPGPR_10.json",
     )
-    parser.add_argument("--seed", type=int, help="Random seed.", default=0)
-
+    parser.add_argument("--seed",       type=int, help="Random seed.",                  default=0)
+    parser.add_argument("--epochs",     type=int, help="Epoch of training TransE.",     default=1)
+    parser.add_argument("--min_epochs", type=int, help="Min Epoch of training TransE.", default=1)
     args = parser.parse_args()
 
     with open(args.config, "r") as f:
         config = edict(json.load(f))
 
     config.seed = args.seed
+    config.TRAIN_EMBEDS.epochs = args.epochs
+    config.TRAIN_EMBEDS.min_epochs = args.min_epochs
+    
     transe_config = config.TRAIN_EMBEDS
     transe_config.use_user_relations = config.use_user_relations
     transe_config.use_entity_relations = config.use_entity_relations

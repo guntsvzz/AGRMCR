@@ -343,6 +343,9 @@ echo "--------------------------------------------------------"
 
 This script processes the review data to generate various entity files.
 #### Generated Files:
+- `like_u_b.txt`            :
+- `like_u_b_rating.txt`     :
+- `dislike_u_b_rating.txt`  :
 - `mentioned_by_u_w.txt`    :
 - `described_as_p_w.txt`    : 
 - `purchases.txt`           :

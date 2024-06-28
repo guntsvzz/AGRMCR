@@ -151,14 +151,16 @@ def main():
         default="config/coco_01_01/UPGPR_test.json",
     )
     parser.add_argument("--seed", type=int, help="Random seed.", default=0)
-
+    parser.add_argument("--epochs_rl",      type=int, help="Epoch of training RL.",         default=1)
+    parser.add_argument("--min_epochs_rl",  type=int, help="Minimum Epoch of training RL.", default=1)
     args = parser.parse_args()
 
     with open(args.config, "r") as f:
         config = edict(json.load(f))
 
     config.seed = args.seed
-
+    config.AGENT.epochs = args.epochs_rl
+    config.AGENT.min_epochs = args.min_epochs_rl
     config_agent = config.AGENT
 
     if config.use_wandb:

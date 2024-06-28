@@ -5,6 +5,9 @@ from tqdm.auto import tqdm
 data_path = sys.argv[1]
 sample_rate = float(sys.argv[2])
 
+# Set the seed for reproducibility
+np.random.seed(42)  
+
 #build user-review map
 user_review_map = {}
 with gzip.open(data_path + 'review_u_p.txt.gz', 'rt') as fin:
@@ -18,7 +21,6 @@ with gzip.open(data_path + 'review_u_p.txt.gz', 'rt') as fin:
 		index += 1
 
 #generate train/test sets
-
 test_review_idx = set()
 for user in tqdm(user_review_map):
 	sample_number = int(len(user_review_map[user]) * sample_rate)
@@ -65,9 +67,8 @@ with gzip.open(data_path + 'train_id.txt.gz', 'wt') as train_fout, gzip.open(dat
 			info_line = info_fin.readline()
 			id_line = id_fin.readline()
 
-for u_idx in test_user_product_map:
+for u_idx in tqdm(test_user_product_map):
 	test_user_product_map[u_idx] -= train_user_product_map[u_idx]
-
 
 #output qrels
 product_ids = []

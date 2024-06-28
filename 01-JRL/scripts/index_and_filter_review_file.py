@@ -79,6 +79,7 @@ product_map = index_set(product_list)
 with gzip.open(output_path + 'review_text.txt.gz', 'wt', encoding='utf-8') as fout_text, \
 	gzip.open(output_path + 'review_u_p.txt.gz', 'wt', encoding='utf-8') as fout_u_p, \
 	gzip.open(output_path + 'review_id.txt.gz', 'wt', encoding='utf-8') as fout_id, \
+    gzip.open(output_path + 'rating_u_p_r.txt.gz', 'wt', encoding='utf-8') as fout_u_p_r, \
 	gzip.open(review_file, 'rt', encoding='utf-8') as g:
 	index = 0
 	# for l in g:
@@ -93,6 +94,7 @@ with gzip.open(output_path + 'review_text.txt.gz', 'wt', encoding='utf-8') as fo
 		product = l.get('asin', '')
 		review_text = l.get('reviewText', '')
 		summary = l.get('summary', '')
+		rating = int(l.get('overall', ''))
 		count_words = 0
 		for term in summary.strip().split(' '):
 			if term in word_map:
@@ -106,6 +108,7 @@ with gzip.open(output_path + 'review_text.txt.gz', 'wt', encoding='utf-8') as fo
 		if count_words > 0:
 			fout_text.write('\n')
 			fout_u_p.write(user_map[user] + ' ' + product_map[product] + '\n')
+			fout_u_p_r.write(user_map[user] + ' ' + product_map[product] + ' ' + str(rating) + '\n')
 			fout_id.write('line_' + str(index) + '\n')
 		index += 1
 		

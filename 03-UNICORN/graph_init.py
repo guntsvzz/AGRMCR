@@ -11,8 +11,11 @@ from Graph_generate.amazon_graph import AmazonGraph
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--data_name', type=str, default=LAST_FM, choices=[LAST_FM, LAST_FM_STAR, YELP, YELP_STAR, AMAZON, AMAZON_STAR],
-        help='One of {LAST_FM, LAST_FM_STAR, YELP, YELP_STAR, AMAZON, AMAZON_STAR}.')
+        '--data_name', 
+        type=str, 
+        default=AMAZON, 
+        choices=[BEAUTY, CELLPHONES, CLOTH, CDS, AMAZON, AMAZON_STAR, LAST_FM, LAST_FM_STAR, YELP, YELP_STAR],
+        help='One of {BEAUTY, CELLPHONES, CLOTH, CDS, AMAZON, AMAZON_STAR, LAST_FM, LAST_FM_STAR, YELP, YELP_STAR}.')
     args = parser.parse_args()
     DatasetDict = {
         # LAST_FM: LastFmDataset,

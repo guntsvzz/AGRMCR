@@ -21,6 +21,8 @@ from sum_tree import SumTree
 #TODO select env
 from RL.env_binary_question import BinaryRecommendEnv
 from RL.env_enumerated_question import EnumeratedRecommendEnv
+# from RL.env_binary_question_pgpr import BinaryRecommendEnvPGPR
+from RL.env_binary_question_pgpr_feature import BinaryRecommendEnvPGPR
 from RL.RL_evaluate import dqn_evaluate
 from RL_model import Agent, ReplayMemoryPER
 from gcn import GraphEncoder
@@ -34,7 +36,11 @@ EnvDict = {
     YELP: EnumeratedRecommendEnv,
     YELP_STAR: BinaryRecommendEnv,
     AMAZON: BinaryRecommendEnv,
-    AMAZON_STAR: BinaryRecommendEnv
+    AMAZON_STAR: BinaryRecommendEnv,
+    BEAUTY : BinaryRecommendEnvPGPR,
+    CELLPHONES : BinaryRecommendEnvPGPR, 
+    CLOTH : BinaryRecommendEnvPGPR, 
+    CDS : BinaryRecommendEnvPGPR
     }
 
 FeatureDict = {
@@ -43,25 +49,66 @@ FeatureDict = {
     YELP: 'large_feature',
     YELP_STAR: 'feature',
     AMAZON: 'feature',
-    AMAZON_STAR: 'feature'
+    AMAZON_STAR: 'feature',
+    BEAUTY : 'feature',
+    CELLPHONES : 'feature',
+    CLOTH : 'feature',
+    CDS : 'feature'
 }
 
 def evaluate(args, kg, dataset, filename):
-    test_env = EnvDict[args.data_name](kg, dataset, args.data_name, args.embed, seed=args.seed, max_turn=args.max_turn,
-                                       cand_num=args.cand_num, cand_item_num=args.cand_item_num, attr_num=args.attr_num, mode='test', ask_num=args.ask_num, entropy_way=args.entropy_method,
-                                       fm_epoch=args.fm_epoch, domain=args.domain)
+    test_env = EnvDict[args.data_name](
+        kg, 
+        dataset, 
+        args.data_name, 
+        args.embed, 
+        seed=args.seed, 
+        max_turn=args.max_turn,
+        cand_num=args.cand_num, 
+        cand_item_num=args.cand_item_num, 
+        attr_num=args.attr_num, 
+        mode='test', 
+        ask_num=args.ask_num, 
+        entropy_way=args.entropy_method,
+        fm_epoch=args.fm_epoch, 
+        domain=args.domain
+    )
+    
     set_random_seed(args.seed)
     memory = ReplayMemoryPER(args.memory_size) #10000
-    embed = torch.FloatTensor(np.concatenate((test_env.ui_embeds, test_env.feature_emb, np.zeros((1,test_env.ui_embeds.shape[1]))), axis=0))
-    gcn_net = GraphEncoder(device=args.device, entity=embed.size(0), emb_size=embed.size(1), kg=kg, embeddings=embed, \
-        fix_emb=args.fix_emb, seq=args.seq, gcn=args.gcn, hidden_size=args.hidden).to(args.device)
-    agent = Agent(device=args.device, memory=memory, state_size=args.hidden, action_size=embed.size(1), \
-        hidden_size=args.hidden, gcn_net=gcn_net, learning_rate=args.learning_rate, l2_norm=args.l2_norm, PADDING_ID=embed.size(0)-1)
+    embed = torch.FloatTensor(
+        np.concatenate((test_env.ui_embeds, test_env.feature_emb, np.zeros((1,test_env.ui_embeds.shape[1]))), axis=0))
+    gcn_net = GraphEncoder(
+        device=args.device, 
+        entity=embed.size(0), 
+        emb_size=embed.size(1), 
+        kg=kg, 
+        embeddings=embed, 
+        fix_emb=args.fix_emb, 
+        seq=args.seq, 
+        gcn=args.gcn, 
+        hidden_size=args.hidden
+    ).to(args.device)
+    agent = Agent(
+        device=args.device, 
+        memory=memory, 
+        state_size=args.hidden, 
+        action_size=embed.size(1), 
+        hidden_size=args.hidden, 
+        gcn_net=gcn_net, 
+        learning_rate=args.learning_rate, 
+        l2_norm=args.l2_norm, 
+        PADDING_ID=embed.size(0)-1
+    )
     print('Staring loading rl model in epoch {}'.format(args.load_rl_epoch))
     print(args.data_name)
     print(filename)
     print(args.load_rl_epoch)
-    # agent.load_model(data_name=args.data_name, filename=filename, epoch_user=args.load_rl_epoch)
+    
+    agent.load_model(
+        data_name=args.data_name, 
+        filename=filename, 
+        epoch_user=args.load_rl_epoch)
 
     tt = time.time()
     start = tt
@@ -71,15 +118,52 @@ def evaluate(args, kg, dataset, filename):
     turn_result = []
     result = []
     user_size = test_env.ui_array.shape[0]
-    
+    print('User-Item Pair')
+    print(test_env.ui_array)
     print('User size in UI_test: ', user_size)
     test_filename = 'Evaluate-epoch-{}-'.format(args.load_rl_epoch) + filename
-
-    for user_num in tqdm(range(user_size)):  #user_size
+    
+    ###BEAUTY, CELLPHONES, CLOTH, CDS
+    if args.data_name in [BEAUTY, CELLPHONES, CLOTH, CDS]:  
+        if args.domain == 'Beauty':
+            if args.eval_num == 1:
+                test_size = 0.1 * user_size
+            else:
+                test_size = 5
+        elif args.domain == 'CDs':
+            if args.eval_num == 1:
+                test_size = 0.1 * user_size
+            else:
+                test_size = 5  
+        elif args.domain == 'Cloth':
+            if args.eval_num == 1:
+                test_size = 0.1 * user_size
+            else:
+                test_size = 5
+        elif args.domain == 'Cellphones':
+            if args.eval_num == 1:
+                test_size = 0.1 * user_size
+            else:
+                test_size = 5
+        
+        user_size = test_size
+    
+    print('The select Test size : ', user_size)
+    for user_num in tqdm(range(user_size), desc='User Sampling'):  #user_size
         # TODO uncommend this line to print the dialog process
-        blockPrint()
+        # blockPrint()
         print('\n================test tuple:{}===================='.format(user_num))
-        state, cand, action_space = test_env.reset()  # Reset environment and record the starting state
+        success = False
+        while not success:
+            try:
+                state, cand, action_space = test_env.reset()  # Reset environment and record the starting state
+                success = True  # If reset succeeds, mark success as True to exit the loop
+            except Exception as e:
+                # test_env.increment_test_num()
+                print(f"Error occurred durievaluateng reset: {e}")
+                print("Retrying...")
+                time.sleep(0.5)  # Wait for 1 second before retrying (adjust as needed)
+        # state, cand, action_space = test_env.reset()  # Reset environment and record the starting state
         is_last_turn = False
         for t in count():  # user  dialog
             if t == 14:
@@ -93,7 +177,7 @@ def evaluate(args, kg, dataset, filename):
             cand = next_cand
             if done:
                 enablePrint()
-                # print(f'Turn: {t}, Reward: {reward.item()}')
+                print(f'Turn: {t}, Reward: {reward.item()}')
                 if reward.item() == 1:  # recommend successfully
                     SR_turn_15 = [v+1 if i>t  else v for i, v in enumerate(SR_turn_15) ]
                     if t < 5:
@@ -110,9 +194,15 @@ def evaluate(args, kg, dataset, filename):
                     Rank += 0
                 AvgT += t+1
                 break
-        
-        if (user_num+1) % args.observe_num == 0 and user_num > 0:
-            SR = [SR5/args.observe_num, SR10/args.observe_num, SR15/args.observe_num, AvgT / args.observe_num, Rank / args.observe_num]
+
+        if (user_num+1) % args.observe_num == 0 and user_num >= 0:
+            SR = [
+                SR5/args.observe_num, 
+                SR10/args.observe_num, 
+                SR15/args.observe_num, 
+                AvgT / args.observe_num, 
+                Rank / args.observe_num
+            ]
             SR_TURN = [i/args.observe_num for i in SR_turn_15]
             print('Total evalueation epoch_uesr:{}'.format(user_num + 1))
             print('Takes {} seconds to finish {}% of this task'.format(str(time.time() - start),
@@ -125,18 +215,45 @@ def evaluate(args, kg, dataset, filename):
             SR5, SR10, SR15, AvgT, Rank = 0, 0, 0, 0, 0
             SR_turn_15 = [0] * args.max_turn
             tt = time.time()
-        enablePrint()
-
+        # enablePrint()
+        
+        # user's profile
+        user_acc_feature = test_env.user_acc_feature 
+        user_rej_feature = test_env.user_rej_feature 
+        item_rej = list(set(test_env.item_rej))
+        cand_items = test_env.cand_items
+        idx_user = test_env.ui_array[user_num][0]
+        idx_item = test_env.ui_array[user_num][1]
+        print("user's profile")
+        print('user', idx_user)
+        print('item', idx_item)
+        print('user_acc_feature', user_acc_feature)
+        print('user_rej_feature', user_rej_feature)
+        print('item_rej', item_rej)
+        # print('Number of cand_items', len(cand_items))
+        
     SR5_mean = np.mean(np.array([item[0] for item in result]))
     SR10_mean = np.mean(np.array([item[1] for item in result]))
     SR15_mean = np.mean(np.array([item[2] for item in result]))
     AvgT_mean = np.mean(np.array([item[3] for item in result]))
     Rank_mean = np.mean(np.array([item[4] for item in result]))
     SR_all = [SR5_mean, SR10_mean, SR15_mean, AvgT_mean, Rank_mean]
-    save_rl_mtric(dataset=args.data_name, filename=filename, epoch=user_num, SR=SR_all, spend_time=time.time() - start,
-                  mode='test')
-    save_rl_mtric(dataset=args.data_name, filename=test_filename, epoch=user_num, SR=SR_all, spend_time=time.time() - start,
-                  mode='test')  # save RL SR
+    save_rl_mtric(
+        dataset=args.data_name, 
+        filename=filename, 
+        epoch=user_num, 
+        SR=SR_all, 
+        spend_time=time.time() - start,
+        mode='test'
+    )
+    save_rl_mtric(
+        dataset=args.data_name, 
+        filename=test_filename, 
+        epoch=user_num, 
+        SR=SR_all, 
+        spend_time=time.time() - start,
+        mode='test'
+    )  # save RL SR
     print('save test evaluate successfully!')
 
     SRturn_all = [0] * args.max_turn
@@ -167,10 +284,10 @@ def main():
     parser.add_argument('--hidden', type=int, default=100, help='number of samples')
     parser.add_argument('--memory_size', type=int, default=50000, help='size of memory ')
 
-    parser.add_argument('--data_name', type=str, default=LAST_FM, choices=[LAST_FM, LAST_FM_STAR, YELP, YELP_STAR, AMAZON, AMAZON_STAR],
-                        help='One of {LAST_FM, LAST_FM_STAR, YELP, YELP_STAR, AMAZON, AMAZON_STAR}.')
-    parser.add_argument('--domain', type=str, default='Office_Products', choices=['Appliances', 'Office_Products','Electronics', 'Sports_and_Outdoors', 'Clothing_Shoes_and_Jewelry'],
-                        help='One of {Appliances, Office_Products, Electronics, Sports_and_Outdoors, Clothing_Shoes_and_Jewelry}.')
+    parser.add_argument('--data_name', type=str, default=AMAZON, choices=[BEAUTY, CELLPHONES, CLOTH, CDS, AMAZON, AMAZON_STAR, LAST_FM, LAST_FM_STAR, YELP, YELP_STAR],
+                        help='One of {BEAUTY, CELLPHONES, CLOTH, CDS, AMAZON, AMAZON_STAR, LAST_FM, LAST_FM_STAR, YELP, YELP_STAR}.')
+    parser.add_argument('--domain', type=str, default='Beauty', choices=['Beauty','Cellphones', 'Cloth', 'CDs'],
+                        help='One of {CDs, Beauty, Cloth, Cell, Appliances, Office_Products, Electronics, Sports_and_Outdoors, Clothing_Shoes_and_Jewelry}.')
     parser.add_argument('--entropy_method', type=str, default='weight_entropy', help='entropy_method is one of {entropy, weight entropy}')
     # Although the performance of 'weighted entropy' is better, 'entropy' is an alternative method considering the time cost.
     parser.add_argument('--max_turn', type=int, default=15, help='max conversation turn')
@@ -178,7 +295,7 @@ def main():
     parser.add_argument('--attr_num', type=int, help='the number of attributes')
     parser.add_argument('--mode', type=str, default='train', help='the mode in [train, test]')
     parser.add_argument('--ask_num', type=int, default=1, help='the number of features asked in a turn')
-    parser.add_argument('--observe_num', type=int, default=100, help='the number of epochs to save RL model and metric')
+    parser.add_argument('--observe_num', type=int, default=5, help='the number of epochs to save RL model and metric')
     parser.add_argument('--load_rl_epoch', type=int, default=0, help='the epoch of loading RL model')
 
     parser.add_argument('--sample_times', type=int, default=100, help='the epoch of sampling')
@@ -187,7 +304,7 @@ def main():
     parser.add_argument('--cand_num', type=int, default=10, help='candidate sampling number')
     parser.add_argument('--cand_item_num', type=int, default=10, help='candidate item sampling number')
     parser.add_argument('--fix_emb', type=bool, default=True, help='fix embedding or not')
-    parser.add_argument('--embed', type=str, default=None, help='pretrained embeddings', choices=['transe', None])
+    parser.add_argument('--embed', type=str, default='None', help='pretrained embeddings', choices=['transe', None])
     parser.add_argument('--seq', type=str, default='transformer', choices=['rnn', 'transformer', 'mean'], help='sequential learning method')
     parser.add_argument('--gcn', action='store_false', help='use GCN or not')
 
@@ -201,6 +318,10 @@ def main():
         kg = AmazonGraph(args.domain)    
     else:
         kg = load_kg(args.data_name)
+        print(kg.G.keys())
+        print('Number of user',len(kg.G['user']))
+        print('Number of item',len(kg.G['item']))
+        print('Number of category',len(kg.G['category']))
     #reset attr_num
     feature_name = FeatureDict[args.data_name]
     feature_length = len(kg.G[feature_name].keys())
@@ -213,6 +334,10 @@ def main():
         dataset = AmazonDataset(args.domain)    
     else:
         dataset = load_dataset(args.data_name)
+        print('Number of user', getattr(dataset, 'user').vocab_size)
+        print('Number of item', getattr(dataset, 'item').vocab_size)
+        print('Number of category', getattr(dataset, 'category').vocab_size)
+    
     filename = 'train-data-{}-RL-cand_num-{}-cand_item_num-{}-embed-{}-seq-{}-gcn-{}'.format(
         args.data_name, args.cand_num, args.cand_item_num, args.embed, args.seq, args.gcn)
     evaluate(args, kg, dataset, filename)

@@ -8,14 +8,24 @@ from collections import namedtuple
 from utils import *
 from RL.env_binary_question import BinaryRecommendEnv
 from RL.env_enumerated_question import EnumeratedRecommendEnv
+# from RL.env_binary_question_pgpr import BinaryRecommendEnvPGPR
+from RL.env_binary_question_pgpr_feature import BinaryRecommendEnvPGPR
 from tqdm import tqdm
+
+import warnings
+warnings.filterwarnings("ignore")
+
 EnvDict = {
     LAST_FM: BinaryRecommendEnv,
     LAST_FM_STAR: BinaryRecommendEnv,
     YELP: EnumeratedRecommendEnv,
     YELP_STAR: BinaryRecommendEnv,
     AMAZON: BinaryRecommendEnv,
-    AMAZON_STAR: BinaryRecommendEnv
+    AMAZON_STAR: BinaryRecommendEnv,
+    BEAUTY : BinaryRecommendEnvPGPR,
+    CELLPHONES : BinaryRecommendEnvPGPR, 
+    CLOTH : BinaryRecommendEnvPGPR, 
+    CDS : BinaryRecommendEnvPGPR
     }
 
 def dqn_evaluate(args, kg, dataset, agent, filename, i_episode):
@@ -44,21 +54,25 @@ def dqn_evaluate(args, kg, dataset, agent, filename, i_episode):
     turn_result = []
     result = []
     user_size = test_env.ui_array.shape[0]
+    
     print('User size in UI_test: ', user_size)
     test_filename = 'Evaluate-epoch-{}-'.format(i_episode) + filename
     plot_filename = 'Evaluate-'.format(i_episode) + filename
+    ###LAST_FM
     if args.data_name in [LAST_FM_STAR, LAST_FM]:
         if args.eval_num == 1:
             test_size = 500
         else:
             test_size = 4000     # Only do 4000 iteration for the sake of time
         user_size = test_size
+    ###YELP
     if args.data_name in [YELP_STAR, YELP]:
         if args.eval_num == 1:
             test_size = 500
         else:
             test_size = 2500     # Only do 2500 iteration for the sake of time
         user_size = test_size
+    ###AMAZON 
     if args.data_name in [AMAZON]: 
         if args.domain == 'Appliances':
             if args.eval_num == 1:
@@ -70,20 +84,55 @@ def dqn_evaluate(args, kg, dataset, agent, filename, i_episode):
                 test_size = 500
             else:
                 test_size = 2500     # Only do 2500 iteration for the sake of time
-        elif args.domain == 'Eletronics':
-            pass
+    ###BEAUTY, CELLPHONES, CLOTH, CDS
+    if args.data_name in [BEAUTY, CELLPHONES, CLOTH, CDS]:  
+        if args.domain == 'Beauty':
+            if args.eval_num == 1:
+                test_size = 0.1 * user_size
+            else:
+                test_size = 100  
+        elif args.domain == 'CDs':
+            if args.eval_num == 1:
+                test_size = 0.1 * user_size
+            else:
+                test_size = 100  
+        elif args.domain == 'Cloth':
+            if args.eval_num == 1:
+                test_size = 0.1 * user_size
+            else:
+                test_size = 100  
+        elif args.domain == 'Cellphones':
+            if args.eval_num == 1:
+                test_size = 0.1 * user_size
+            else:
+                test_size = 100  
         
         user_size = test_size
         
     print('The select Test size : ', test_size)
     for user_num in tqdm(range(user_size)):  #user_size
         # TODO uncommend this line to print the dialog process
-        blockPrint()
+        # blockPrint()
         print('\n================test tuple:{}===================='.format(user_num))
-        if not args.fix_emb:
-            state, cand, action_space = test_env.reset(agent.gcn_net.embedding.weight.data.cpu().detach().numpy())  # Reset environment and record the starting state
-        else:
-            state, cand, action_space = test_env.reset() 
+        success = False
+        while not success:
+            try:
+                if not args.fix_emb:
+                    state, cand, action_space = test_env.reset(agent.gcn_net.embedding.weight.data.cpu().detach().numpy())  # Reset environment and record the starting state
+                    success = True  # If reset succeeds, mark success as True to exit the loop
+                else:
+                    state, cand, action_space = test_env.reset() 
+                    success = True  # If reset succeeds, mark success as True to exit the loop
+            except Exception as e:
+                print(f"Error occurred during reset: {e}")
+                print("Retrying...")
+                time.sleep(0.5)  # Wait for 1 second before retrying (adjust as needed)
+                # You can add more sophisticated retry logic here if needed
+                
+        # if not args.fix_emb:
+        #     state, cand, action_space = test_env.reset(agent.gcn_net.embedding.weight.data.cpu().detach().numpy())  # Reset environment and record the starting state
+        # else:
+        #     state, cand, action_space = test_env.reset() 
         epi_reward = 0
         is_last_turn = False
         for t in count():  # user  dialog
@@ -118,7 +167,14 @@ def dqn_evaluate(args, kg, dataset, agent, filename, i_episode):
                 break
         
         if (user_num+1) % args.observe_num == 0 and user_num > 0:
-            SR = [SR5/args.observe_num, SR10/args.observe_num, SR15/args.observe_num, AvgT / args.observe_num, Rank / args.observe_num, total_reward / args.observe_num]
+            SR = [
+                SR5/args.observe_num, 
+                SR10/args.observe_num, 
+                SR15/args.observe_num, 
+                AvgT / args.observe_num, 
+                Rank / args.observe_num, 
+                total_reward / args.observe_num
+            ]
             SR_TURN = [i/args.observe_num for i in SR_turn_15]
             print('Total evalueation epoch_uesr:{}'.format(user_num + 1))
             print('Takes {} seconds to finish {}% of this task'.format(str(time.time() - start),
@@ -131,7 +187,16 @@ def dqn_evaluate(args, kg, dataset, agent, filename, i_episode):
             SR5, SR10, SR15, AvgT, Rank, total_reward = 0, 0, 0, 0, 0, 0
             SR_turn_15 = [0] * args.max_turn
             tt = time.time()
-        enablePrint()
+        # enablePrint()
+        
+        # user's profile
+        user_acc_feature = test_env.user_acc_feature 
+        user_rej_feature = test_env.user_rej_feature 
+        cand_items = test_env.cand_items 
+        print("user's profile")
+        print('user_acc_feature', user_acc_feature)
+        print('user_rej_feature', user_rej_feature)
+        print('Number of cand_items', len(cand_items))
 
     SR5_mean = np.mean(np.array([item[0] for item in result]))
     SR10_mean = np.mean(np.array([item[1] for item in result]))
@@ -140,10 +205,20 @@ def dqn_evaluate(args, kg, dataset, agent, filename, i_episode):
     Rank_mean = np.mean(np.array([item[4] for item in result]))
     reward_mean = np.mean(np.array([item[5] for item in result]))
     SR_all = [SR5_mean, SR10_mean, SR15_mean, AvgT_mean, Rank_mean, reward_mean]
-    save_rl_mtric(dataset=args.data_name, filename=filename, epoch=user_num, SR=SR_all, spend_time=time.time() - start,
-                  mode='test')
-    save_rl_mtric(dataset=args.data_name, filename=test_filename, epoch=user_num, SR=SR_all, spend_time=time.time() - start,
-                  mode='test')  # save RL SR
+    save_rl_mtric(
+        dataset=args.data_name, 
+        filename=filename, 
+        epoch=user_num, 
+        SR=SR_all, 
+        spend_time=time.time() - start,
+        mode='test')
+    save_rl_mtric(
+        dataset=args.data_name, 
+        filename=test_filename, 
+        epoch=user_num, SR=SR_all, 
+        spend_time=time.time() - start,
+        mode='test'
+    )  # save RL SR
     print('save test evaluate successfully!')
 
     SRturn_all = [0] * args.max_turn

@@ -1,12 +1,9 @@
 from __future__ import absolute_import, division, print_function
-
 import json
-
 from utils import *
 
 
 class KnowledgeGraph(object):
-
     def __init__(
         self, dataset, kg_args, set_name, use_user_relations, use_entity_relations
     ):
