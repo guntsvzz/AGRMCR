@@ -162,7 +162,7 @@ class BinaryRecommendEnvPGPR(object):
             users = list(self.user_weight_dict.keys())
             # print("Number of users", len(users))
             # self.user_id = np.random.choice(users, p=list(self.user_weight_dict.values())) # select user  according to user weights
-            self.user_id = np.random.choice(users)
+            self.user_id = np.random.choice(users) 
             self.target_item = int(np.random.choice(self.ui_dict[str(self.user_id)]))
         
         elif self.mode == 'test':
