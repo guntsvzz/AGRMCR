@@ -46,13 +46,14 @@ class Agent(object):
                 return torch.tensor(action_space[1][0], device=self.device, dtype=torch.long), action_space[1]
             with torch.no_grad():
                 actions_value = self.policy_net(state_emb, cand_emb)
-                print(sorted(list(zip(cand[0].tolist(), actions_value[0].tolist())), key=lambda x: x[1], reverse=True))
+                # print(sorted(list(zip(cand[0].tolist(), actions_value[0].tolist())), key=lambda x: x[1], reverse=True))
                 action = cand[0][actions_value.argmax().item()]
                 sorted_actions = cand[0][actions_value.sort(1, True)[1].tolist()]
                 return action, sorted_actions.tolist()
         else:
-            shuffled_cand = action_space[0]+action_space[1]
-            random.shuffle(shuffled_cand)
+            # print('Number of action space', len(action_space))
+            shuffled_cand = action_space[0]+action_space[1] #feature + item
+            # random.shuffle(shuffled_cand)
             return torch.tensor(shuffled_cand[0], device=self.device, dtype=torch.long), shuffled_cand
     
     def update_target_model(self):

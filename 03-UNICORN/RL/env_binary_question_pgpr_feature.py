@@ -183,14 +183,14 @@ class BinaryRecommendEnvPGPR(object):
         self.conver_his = [0] * self.max_turn  # conversation_history
         # print('self.conver_his',self.conver_his)
         self.attr_ent = [0] * self.attr_state_num  # attribute entropy
-        print('Number of init user_embed',len(self.user_embed))
-        print('Number of conversation history',len(self.conver_his))
-        print('Number of attribute entropy', len(self.attr_ent))
+        # print('Number of init user_embed',len(self.user_embed))
+        # print('Number of conversation history',len(self.conver_his))
+        # print('Number of attribute entropy', len(self.attr_ent))
 
         # initialize dialog by randomly asked a question from ui interaction
         # print(self.kg.G['item'][self.target_item])
         print('user_like_fea', self.kg.G['item'][self.target_item]['feature'])
-        user_like_random_fea = random.choice(self.kg.G['item'][self.target_item]['feature']) #feature=belong_to+category_of
+        user_like_random_fea = random.choice(self.kg.G['item'][self.target_item]['feature']) #feature=belong_to + category_of
         # print('user_like_random_fea',user_like_random_fea)
         self.user_acc_feature.append(user_like_random_fea) #update user acc_fea
         self.cur_node_set.append(user_like_random_fea)
@@ -222,18 +222,28 @@ class BinaryRecommendEnvPGPR(object):
 
     def _get_cand(self):
         if self.random_sample_feature:
-            cand_feature = self._map_to_all_id(random.sample(self.reachable_feature, min(len(self.reachable_feature),self.cand_num)),'feature')
+            cand_feature = self._map_to_all_id(
+                random.sample(self.reachable_feature, min(len(self.reachable_feature),self.cand_num)),
+                'feature')
         else:
-            cand_feature = self._map_to_all_id(self.reachable_feature[:self.cand_num],'feature')
+            cand_feature = self._map_to_all_id(
+                self.reachable_feature[:self.cand_num],
+                'feature')
+            
         if self.random_sample_item:
-            cand_item =  self._map_to_all_id(random.sample(self.cand_items, min(len(self.cand_items),self.cand_item_num)),'item')
+            cand_item =  self._map_to_all_id(
+                random.sample(self.cand_items, min(len(self.cand_items),self.cand_item_num)), 
+                'item')
         else:
-            cand_item = self._map_to_all_id(self.cand_items[:self.cand_item_num],'item')
+            cand_item = self._map_to_all_id(
+                self.cand_items[:self.cand_item_num],
+                'item')
         cand = cand_feature + cand_item
         return cand
     
     def _get_action_space(self):
         action_space = [self._map_to_all_id(self.reachable_feature,'feature'), self._map_to_all_id(self.cand_items,'item')]
+        print('Number of Action Space',len(action_space[0]) + len(action_space[1]))
         return action_space
 
     def _get_state(self):
@@ -269,7 +279,7 @@ class BinaryRecommendEnvPGPR(object):
                 if item not in set_cand_items:
                     continue
             item_idx = item + self.user_length
-            i.append([user_idx, idx[item_idx]])
+            i.append([user_idx, idx[item_idx]]) 
             i.append([idx[item_idx], user_idx])
             v.append(score)
             v.append(score)
@@ -291,13 +301,13 @@ class BinaryRecommendEnvPGPR(object):
 
         done = 0
         print('---------------step:{}-------------'.format(self.cur_conver_step))
-
+        print('Action : ', action, 'UI_length', self.user_length + self.item_length)
         if self.cur_conver_step == self.max_turn:
             reward = self.reward_dict['until_T']
             self.conver_his[self.cur_conver_step-1] = self.history_dict['until_T']
             print('--> Maximum number of turns reached !')
             done = 1
-        elif action >= self.user_length + self.item_length:   #ask feature
+        elif action >= self.user_length + self.item_length:   #ask feature #action = feature + item
             asked_feature = self._map_to_old_id(action)
             print('-->action: ask features {}, max entropy feature {}'.format(asked_feature, self.reachable_feature[:self.cand_num]))
             reward, done, acc_rej = self._ask_update(asked_feature)  #update user's profile:  user_acc_feature & user_rej_feature
@@ -399,7 +409,8 @@ class BinaryRecommendEnvPGPR(object):
         done = 0
         # TODO datafram!     groundTruth == target_item features
         feature_groundtrue = self.kg.G['item'][self.target_item]['feature'] #feature = belong_to+category_of
-
+        print('asked_feature', asked_feature)
+        print('feature_groundtrue', feature_groundtrue)
         if asked_feature in feature_groundtrue:
             acc_rej = True
             self.user_acc_feature.append(asked_feature)
@@ -421,12 +432,12 @@ class BinaryRecommendEnvPGPR(object):
     def _update_cand_items(self, asked_feature, acc_rej):
         if acc_rej:    # accept feature
             print('=== ask acc: update cand_items') 
-            print('asked_feature', asked_feature)
+            print('Asked_feature', asked_feature)
             feature_items = self.kg.G['feature'][asked_feature]['belong_to'] #fix feature #belong_to -> category_of
-            print('feature_items', len(feature_items))
+            print('Feature_items', len(feature_items))
             self.cand_items = set(self.cand_items) & set(feature_items)   #  itersection 
             self.cand_items = list(self.cand_items)
-            print('number of candidate items ', len(self.cand_items))
+            print('Number of candidate items ', len(self.cand_items))
         
         else:    # reject feature
             print('=== ask rej: update cand_items')
