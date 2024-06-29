@@ -127,24 +127,24 @@ def evaluate(args, kg, dataset, filename):
     if args.data_name in [BEAUTY, CELLPHONES, CLOTH, CDS]:  
         if args.domain == 'Beauty':
             if args.eval_num == 1:
-                test_size = 0.1 * user_size
+                test_size = int(0.1 * user_size)
             else:
-                test_size = 5
+                test_size = int(0.01 * user_size)
         elif args.domain == 'CDs':
             if args.eval_num == 1:
-                test_size = 0.1 * user_size
+                test_size = int(0.1 * user_size)
             else:
-                test_size = 5  
+                test_size = int(0.01 * user_size) 
         elif args.domain == 'Cloth':
             if args.eval_num == 1:
-                test_size = 0.1 * user_size
+                test_size = int(0.1 * user_size)
             else:
-                test_size = 5
+                test_size = int(0.01 * user_size)
         elif args.domain == 'Cellphones':
             if args.eval_num == 1:
-                test_size = 0.1 * user_size
+                test_size = int(0.1 * user_size)
             else:
-                test_size = 5
+                test_size = int(0.01 * user_size)
         
         user_size = test_size
     
@@ -317,7 +317,7 @@ def main():
     if args.data_name == AMAZON:
         kg = AmazonGraph(args.domain)    
     else:
-        kg = load_kg(args.data_name, mode='test')
+        kg = load_kg(args.data_name, mode='train')
         print(kg.G.keys())
         print('Number of user',len(kg.G['user']))
         print('Number of item',len(kg.G['item']))
