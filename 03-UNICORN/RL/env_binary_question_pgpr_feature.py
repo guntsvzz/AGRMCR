@@ -309,7 +309,7 @@ class BinaryRecommendEnvPGPR(object):
             done = 1
         elif action >= self.user_length + self.item_length:   #ask feature #action = feature + item
             asked_feature = self._map_to_old_id(action)
-            print('-->action: ask features {}, max entropy feature {}'.format(asked_feature, self.reachable_feature[:self.cand_num]))
+            print('-->Action: ask features {}, max entropy feature {}'.format(asked_feature, self.reachable_feature[:self.cand_num]))
             reward, done, acc_rej = self._ask_update(asked_feature)  #update user's profile:  user_acc_feature & user_rej_feature
             self._update_cand_items(asked_feature, acc_rej)   #update cand_items
         else:  #recommend items
