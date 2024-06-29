@@ -10,9 +10,9 @@ mkdir -p ../03-UNICORN/data/clothing
 mkdir -p ../03-UNICORN/data/cellphones
 
 # Copy the directories to the new locations
-cp -r data/beauty ../03-UNICORN/data/beauty
-cp -r data/cds_and_vinyl ../03-UNICORN/data/cds
-cp -r data/clothing_shoes_and_jewelry ../03-UNICORN/data/clothing
-cp -r data/cell_phones_and_accessories ../03-UNICORN/data/cellphones
+cp -r data/beauty/Amazon_Beauty_01_01/ ../03-UNICORN/data/beauty
+cp -r data/cds/Amazon_CDs_01_01/ ../03-UNICORN/data/cds
+cp -r data/clothing/Amazon_Clothing_01_01/ ../03-UNICORN/data/clothing
+cp -r data/cellphones/Amazon_Cellphones_01_01/ ../03-UNICORN/data/cellphones
 
 echo "Cloning complete."
