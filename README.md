@@ -3,21 +3,23 @@
 
 ## TO-DO
 - Preprocessing dataset (JRL)
-    - [x] Beauty
-    - [x] CDs_and_Vinyl
-    - [x] Clothing_Shoes_and_Jewelry
-    - [x] Cell_Phones_and_Accessories
-- [x] Preparation metadata and 5-core Amazon dataset
+    - Download metadata and 5-core Amazon dataset
+        - [x] Beauty
+        - [x] CDs_and_Vinyl
+        - [x] Clothing_Shoes_and_Jewelry
+        - [x] Cell_Phones_and_Accessories
+    - [x] constructing `like`/`dislike`
     - [x] adding `feature` to MCR dataset
     - [x] config `feature` for UPGPR
-- [x] Train & Evaluate RL agent for MCR
-- [x] Train & Evaluate RL agent for UPGPR
-    - [ ] changing cold-start embedding value for AGRMCR
-- User preferred construction (Class)
-    - [ ] Linking with feature but also know is it brand or category (checking by len(brand))
-- Translation & Trim
-    - [x] code Translation
-    - [ ] code Trim
+- Training Model
+    - [x] Transitional Embedding 
+    - [x] Train/Eval RL agent for MCR
+    - [x] Train/Eval RL agent for UPGPR
+    - [x] changing cold-start embedding value for AGRMCR
+- User Preference 
+    - [x] Matching features which are brand/category 
+    - [x] Translation
+    - [ ] Trim
 - Baseline
     - [x] run_baseline.sh
 
@@ -118,61 +120,6 @@ source JRL/preprocessing_data.sh
 <summary> Details code </summary>
 
 ```bash
-DATASET_NAME=Beauty
-# DATASET_NAME=CDs_and_Vinyl
-# DATASET_NAME=Clothing_Shoes_and_Jewelry
-# DATASET_NAME=Cell_Phones_and_Accessories
-
-echo "Dataset Name is ${DATASET_NAME}"
-echo "------------- step 1: Index datasets (Entity) --------------"
-REVIEW_FILE=./raw_data/reviews_${DATASET_NAME}_5.json.gz
-INDEXED_DATA_DIR=./tmp/${DATASET_NAME}_
-MIN_COUNT=15
-python3 ./scripts/index_and_filter_review_file.py $REVIEW_FILE $INDEXED_DATA_DIR $MIN_COUNT
-echo "------------------------------------------------------------"
-# <REVIEW_FILE>: the file path for the Amazon review data
-# <INDEXED_DATA_DIR>: output directory for indexed data
-# <MIN_COUNT>: the minimum count for terms. If a term appears less then <MIN_COUNT> times in the data, it will be ignored.
-
-echo "------------- step 2: Split datasets for training and test --------------"
-SOURCE_DIR=./tmp/${DATASET_NAME}_min_count${MIN_COUNT}
-SAMPLE_RATE=0.3
-python3 ./scripts/split_train_test.py $SOURCE_DIR/ $SAMPLE_RATE
-echo "-------------------------------------------------------------------------"
-
-echo "------------- step 3: Extract gzip to txt ------------------"
-# Convert DATASET_NAME to lowercase
-DATASET_NAME_LOWER=$(echo "$DATASET_NAME" | tr '[:upper:]' '[:lower:]')
-DEST_DIR=./data/${DATASET_NAME_LOWER}
-# Create the destination directory if it does not exist
-mkdir -p "$DEST_DIR"
-
-# Find all .txt.gz files in the source directory, decompress them, and move the .txt files to the destination directory
-for gz_file in "$SOURCE_DIR"/*.txt.gz; 
-do
-    echo "Processing $gz_file"
-    # Decompress the file
-    gzip -d "$gz_file"
-
-    # Extract the base filename without extension
-    BASE_NAME=$(basename "$gz_file" .gz)
-    txt_file="${SOURCE_DIR}/${BASE_NAME}"
-    echo "Move to $txt_file"
-    
-    # Check if the .txt file exists after decompression
-    if [ -f "$txt_file" ]; then
-        # Move the decompressed .txt file to the destination directory
-        mv "$txt_file" "$DEST_DIR"
-    else
-        echo "Error: Decompressed file '$txt_file' not found."
-    fi
-done
-echo "------------------------------------------------------------"
-
-echo "------------- step 4: Matching Relations --------------"
-python3 ./scripts/match_cate_brand_related.py $DATASET_NAME
-echo "-------------------------------------------------------"
-# DATASET_NAME: the domain name 
 ```
 
 </details>
@@ -224,114 +171,6 @@ This script processes the data to generate relation files, which describe variou
 5. Evaluation
 
 ```bash
-source GRECS/run_grec.sh
-```
-
-<details>
-<summary> Details code </summary>
-
-```bash
-echo "------------- step 1: Preprocessing --------------"
-start=$(date +%s)
-echo "Start time: $(date)"
-python3 src/preprocess/cell_phones.py \
-    --config config/cell_phones/graph_reasoning/preprocess.json
-
-# python3 src/preprocess/beauty.py \
-#     --config config/beauty/graph_reasoning/preprocess.json
-# python3 src/preprocess/cds.py \
-#     --config config/cds/graph_reasoning/preprocess.json
-# python3 src/preprocess/cellphones.py \
-#     --config config/cellphones/graph_reasoning/preprocess.json
-# python3 src/preprocess/clothing.py \
-#     --config config/clothing/graph_reasoning/preprocess.json
-end=$(date +%s)
-echo "End time: $(date)"
-duration=$((end - start))
-echo "Duration: $(($duration / 3600)) hr $((($duration % 3600) / 60)) min $(($duration % 60)) sec"
-echo "--------------------------------------------------------"
-
-echo "------------- step 2: Make dataset --------------"
-start=$(date +%s)
-echo "Start time: $(date)"
-python3 src/graph_reasoning/make_dataset.py \
-    --config config/cell_phones/graph_reasoning/UPGPR.json
-
-# python3 src/graph_reasoning/make_dataset.py \
-#     --config config/beauty/graph_reasoning/UPGPR.json
-# python3 src/graph_reasoning/make_dataset.py \
-#     --config config/cds/graph_reasoning/UPGPR.json
-# python3 src/graph_reasoning/make_dataset.py \
-#     --config config/cellphones/graph_reasoning/UPGPR.json
-# python3 src/graph_reasoning/make_dataset.py \
-#     --config config/clothing/graph_reasoning/UPGPR.json
-end=$(date +%s)
-echo "End time: $(date)"
-duration=$((end - start))
-echo "Duration: $(($duration / 3600)) hr $((($duration % 3600) / 60)) min $(($duration % 60)) sec"
-echo "--------------------------------------------------------"
-
-echo "------------- step 3: Train KG Embedding --------------"
-start=$(date +%s)
-echo "Start time: $(date)"
-python3 src/graph_reasoning/train_transe_model.py \
-    --config config/cell_phones/graph_reasoning/UPGPR.json
-
-# python3 src/graph_reasoning/train_transe_model.py \
-#     --config config/beauty/graph_reasoning/UPGPR.json
-# python3 src/graph_reasoning/train_transe_model.py \
-#     --config config/cds/graph_reasoning/UPGPR.json
-# python3 src/graph_reasoning/train_transe_model.py \
-#     --config config/cellphones/graph_reasoning/UPGPR.json
-# python3 src/graph_reasoning/train_transe_model.py \
-#     --config config/clothing/graph_reasoning/UPGPR.json
-end=$(date +%s)
-echo "End time: $(date)"
-duration=$((end - start))
-echo "Duration: $(($duration / 3600)) hr $((($duration % 3600) / 60)) min $(($duration % 60)) sec"
-echo "--------------------------------------------------------"
-
-echo "------------- step 4: Train RL Agent --------------"
-start=$(date +%s)
-echo "Start time: $(date)"
-python3 src/graph_reasoning/train_agent.py \
-    --config config/cell_phones/graph_reasoning/UPGPR.json
-
-# python3 src/graph_reasoning/train_agent.py \
-#     --config config/beauty/graph_reasoning/UPGPR.json
-# python3 src/graph_reasoning/train_agent.py \
-#     --config config/cds/graph_reasoning/UPGPR.json
-# python3 src/graph_reasoning/train_agent.py \
-#     --config config/cellphones/graph_reasoning/UPGPR.json
-# python3 src/graph_reasoning/train_agent.py \
-#     --config config/clothing/graph_reasoning/UPGPR.json
-end=$(date +%s)
-echo "End time: $(date)"
-duration=$((end - start))
-echo "Duration: $(($duration / 3600)) hr $((($duration % 3600) / 60)) min $(($duration % 60)) sec"
-echo "--------------------------------------------------------"
-
-echo "------------- step 5: Evaluation --------------"
-start=$(date +%s)
-echo "Start time: $(date)"
-python3 src/graph_reasoning/test_agent.py \
-    --config config/cell_phones/graph_reasoning/UPGPR.json
-
-# python3 src/graph_reasoning/test_agent.py \
-#     --config config/beauty/graph_reasoning/UPGPR.json
-# python3 src/graph_reasoning/test_agent.py \
-#     --config config/cds/graph_reasoning/UPGPR.json
-# python3 src/graph_reasoning/test_agent.py \
-#     --config config/cellphones/graph_reasoning/UPGPR.json
-# python3 src/graph_reasoning/test_agent.py \
-#     --config config/clothing/graph_reasoning/UPGPR.json
-# python3 src/graph_reasoning/test_agent.py \
-#     --config config/coco/graph_reasoning/UPGPR.json
-end=$(date +%s)
-echo "End time: $(date)"
-duration=$((end - start))
-echo "Duration: $(($duration / 3600)) hr $((($duration % 3600) / 60)) min $(($duration % 60)) sec"
-echo "--------------------------------------------------------"
 ```
 
 </details>
@@ -393,47 +232,6 @@ source UNICORN/run_unicorn.sh
 <summary>Details code</summary>
 
 ```bash
-echo "------------- step 0: TransE Embedding --------------"
-echo "It was trained by GRECS"
-echo "--------------------------------------------------------"
-
-# max_steps==train_step & sample_times=episode
-echo "------------- step 1: Training RL Agent --------------"
-start=$(date +%s)
-echo "Start time: $(date)"
-# python3 RL_model.py --data_name AMAZON --domain Appliances --max_steps 10 --sample_times 1 
-python3 RL_model.py \
-    --data_name BEAUTY --domain Beauty --max_steps 10 --sample_times 1 --embed transe
-python3 RL_model.py \
-    --data_name CELLPHONES --domain Cellphones --max_steps 10 --sample_times 1 --embed transe
-python3 RL_model.py \
-    --data_name CLOTH --domain Cloth --max_steps 10 --sample_times 1 --embed transe
-python3 RL_model.py \
-    --data_name CDS --domain CDs --max_steps 1 --sample_times 1 --embed transe
-end=$(date +%s)
-echo "End time: $(date)"
-duration=$((end - start))
-echo "Duration: $(($duration / 3600)) hr $((($duration % 3600) / 60)) min $(($duration % 60)) sec"
-echo "--------------------------------------------------------"
-
-echo "------------- step 2: Evaluation RL Agent --------------"
-start=$(date +%s)
-echo "Start time: $(date)"
-# python3 evaluate.py --data_name AMAZON --domain Appliances --load_rl_epoch 10
-python3 evaluate.py \
-    --data_name BEAUTY --domain Beauty --load_rl_epoch 10 --embed transe
-python3 evaluate.py \
-    --data_name CELLPHONES --domain Cellphones --load_rl_epoch 10 --embed transe
-python3 evaluate.py \
-    --data_name CLOTH --domain Cloth --load_rl_epoch 10 --embed transe
-python3 evaluate.py \
-    --data_name CDS --domain CDs --load_rl_epoch 10 --embed transe
-end=$(date +%s)
-echo "End time: $(date)"
-duration=$((end - start))
-echo "Duration: $(($duration / 3600)) hr $((($duration % 3600) / 60)) min $(($duration % 60)) sec"
-echo "----------------------------------------------------------"
-
 ```
 
 </details>
@@ -543,22 +341,66 @@ We construct a pair consisting of an entity and a relation based on the last sta
 
 </details>
 
-<details>
-<summary>Comparing SOTA techniques</summary>
+
+
+## Run the baselines
 
 **Overall, how does our technique compare to SOTA techniques?**
 
-### Run the baselines
-
-To run a baseline on Beauty, choose a yaml config file in config/beauty/baselines and run the following:
-
-```bash
-python3 src/baselines/baseline.py --config config/baselines/Pop.yaml
+```
+bash source 02-GREC/run_basline.sh
 ```
 
-This example runs the Pop baseline on the Beauty dataset.
+<details>
+<summary>Details code</summary>
 
-You can ignore the warning "command line args [--config config/baselines/Pop.yaml] will not be used in RecBole". The argument is used properly.
+```bash
+echo "------------- 1 : Process the files for Recbole -------------"
+# Process the processed files for RecBole (after processing the original files for Graph Reasoning) 
+echo "-------------- Formatting Beauty --------------------------"
+python3 src/baselines/format_beauty.py \
+    --config config_default/beauty/baselines/format.json 
+echo "-------------- Formatting CDs --------------------------"
+python3 src/baselines/format_cds.py \
+    --config config_default/cds/baselines/format.json
+echo "-------------- Formatting Cellphones -------------------"
+python3 src/baselines/format_cellphones.py \
+    --config config_default/cellphones/baselines/format.json
+echo "-------------- Formatting Clothing ---------------------"
+python3 src/baselines/format_clothing.py \
+    --config config_default/clothing/baselines/format.json
+echo "--------------------------------------------------------"
+# python3 src/baselines/format_coco.py \
+#     --config config_default/coco/baselines/format.json
+# After this process, all the files from beauty have been standardized into the format needed by RecBole. 
+# We follow the same process for the other datasets: 
+
+echo "------------- 2 : Run the baselines -------------"
+# To run a baseline on Beauty, choose a yaml config file in config_default/beauty/baselines and run the following:
+DATASET_NAMES=("beauty" "cds" "cellphones" "clothing")
+
+# DATASET_NAME=beauty
+for DATASET_NAME in "${DATASET_NAMES[@]}"; do
+    python3 src/baselines/baseline.py \
+        --config config_default/${DATASET_NAME}/baselines/Pop.yaml
+    python3 src/baselines/baseline.py \
+        --config config_default/${DATASET_NAME}/baselines/ItemKNN.yaml
+    python3 src/baselines/baseline.py \
+        --config config_default/${DATASET_NAME}/baselines/BPR.yaml
+    python3 src/baselines/baseline.py \
+        --config config_default/${DATASET_NAME}/baselines/NeuMF.yaml
+    python3 src/baselines/baseline.py \
+        --config config_default/${DATASET_NAME}/baselines/CFKG.yaml
+    python3 src/baselines/baseline.py \
+        --config config_default/${DATASET_NAME}/baselines/KGCN.yaml
+    python3 src/baselines/baseline.py \
+        --config config_default/${DATASET_NAME}/baselines/MKR.yaml
+    python3 src/baselines/baseline.py \
+        --config config_default/${DATASET_NAME}/baselines/SpectralCF.yaml
+done
+# This example runs the Pop baseline on the Beauty dataset.
+# You can ignore the warning "command line args [--config config_default/baselines/Pop.yaml] will not be used in RecBole". The argument is used properly.
+```
 
 </details>
 

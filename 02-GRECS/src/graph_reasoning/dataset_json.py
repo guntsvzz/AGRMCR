@@ -5,7 +5,7 @@ from tqdm.auto import tqdm
 import json
 
 set_name = ["train", "test"] #, "validation"]
-set_domain = ['Beauty','Cellphones', 'Cloth', 'CDs']
+set_domain = ['Beauty','Cellphones', 'Clothing', 'CDs']
 
 dataset_name= sys.argv[1] #'Beauty'
 

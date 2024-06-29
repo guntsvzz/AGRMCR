@@ -32,9 +32,22 @@ duration=$((end - start))
 echo "Duration: $(($duration / 3600)) hr $((($duration % 3600) / 60)) min $(($duration % 60)) sec"
 echo "--------------------------------------------------------"
 
-EPOCHS=1
-MIN_EPOCHS=1
-echo "------------- step 3: Train KG Embedding --------------"
+echo "------------- step 3: Create review_dict --------------"
+start=$(date +%s)
+echo "Start time: $(date)"
+python3 src/graph_reasoning/dataset_json.py Beauty
+python3 src/graph_reasoning/dataset_json.py Cellphones
+python3 src/graph_reasoning/dataset_json.py Clothing
+python3 src/graph_reasoning/dataset_json.py CDs
+end=$(date +%s)
+echo "End time: $(date)"
+duration=$((end - start))
+echo "Duration: $(($duration / 3600)) hr $((($duration % 3600) / 60)) min $(($duration % 60)) sec"
+echo "--------------------------------------------------------"
+
+EPOCHS=30
+MIN_EPOCHS=$((${EPOCHS} - 1))
+echo "------------- step 4: Train KG Embedding --------------"
 start=$(date +%s)
 echo "Start time: $(date)"
 python3 src/graph_reasoning/train_transe_model.py \
@@ -51,20 +64,7 @@ duration=$((end - start))
 echo "Duration: $(($duration / 3600)) hr $((($duration % 3600) / 60)) min $(($duration % 60)) sec"
 echo "--------------------------------------------------------"
 
-echo "------------- step 4: Create review_dict --------------"
-start=$(date +%s)
-echo "Start time: $(date)"
-python3 src/graph_reasoning/dataset_json.py Beauty
-python3 src/graph_reasoning/dataset_json.py Cellphones
-python3 src/graph_reasoning/dataset_json.py Clothing
-python3 src/graph_reasoning/dataset_json.py CDs
-end=$(date +%s)
-echo "End time: $(date)"
-duration=$((end - start))
-echo "Duration: $(($duration / 3600)) hr $((($duration % 3600) / 60)) min $(($duration % 60)) sec"
-echo "--------------------------------------------------------"
-
-EPOCHS_RL=1
+EPOCHS_RL=50
 MIN_EPOCHS_RL=$((${EPOCHS_RL} - 1))
 echo "------------- step 5: Train RL Agent --------------"
 start=$(date +%s)

@@ -25,19 +25,19 @@ DATASET_NAMES=("beauty" "cds" "cellphones" "clothing")
 # DATASET_NAME=beauty
 for DATASET_NAME in "${DATASET_NAMES[@]}"; do
     python3 src/baselines/baseline.py \
-        --config config_default/${DATASET_NAME}/baselines/BPR.yaml
-    python3 src/baselines/baseline.py \
-        --config config_default/${DATASET_NAME}/baselines/CFKG.yaml
+        --config config_default/${DATASET_NAME}/baselines/Pop.yaml
     python3 src/baselines/baseline.py \
         --config config_default/${DATASET_NAME}/baselines/ItemKNN.yaml
+    python3 src/baselines/baseline.py \
+        --config config_default/${DATASET_NAME}/baselines/BPR.yaml
+    python3 src/baselines/baseline.py \
+        --config config_default/${DATASET_NAME}/baselines/NeuMF.yaml
+    python3 src/baselines/baseline.py \
+        --config config_default/${DATASET_NAME}/baselines/CFKG.yaml
     python3 src/baselines/baseline.py \
         --config config_default/${DATASET_NAME}/baselines/KGCN.yaml
     python3 src/baselines/baseline.py \
         --config config_default/${DATASET_NAME}/baselines/MKR.yaml
-    python3 src/baselines/baseline.py \
-        --config config_default/${DATASET_NAME}/baselines/NeuMF.yaml
-    python3 src/baselines/baseline.py \
-        --config config_default/${DATASET_NAME}/baselines/Pop.yaml
     python3 src/baselines/baseline.py \
         --config config_default/${DATASET_NAME}/baselines/SpectralCF.yaml
 done
