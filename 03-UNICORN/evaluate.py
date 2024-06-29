@@ -317,7 +317,7 @@ def main():
     if args.data_name == AMAZON:
         kg = AmazonGraph(args.domain)    
     else:
-        kg = load_kg(args.data_name)
+        kg = load_kg(args.data_name, mode='test')
         print(kg.G.keys())
         print('Number of user',len(kg.G['user']))
         print('Number of item',len(kg.G['item']))
@@ -333,7 +333,7 @@ def main():
     if args.data_name == AMAZON:
         dataset = AmazonDataset(args.domain)    
     else:
-        dataset = load_dataset(args.data_name)
+        dataset = load_dataset(args.data_name, mode='test')
         print('Number of user', getattr(dataset, 'user').vocab_size)
         print('Number of item', getattr(dataset, 'item').vocab_size)
         print('Number of category', getattr(dataset, 'category').vocab_size)

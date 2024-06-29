@@ -78,7 +78,7 @@ class BinaryRecommendEnvPGPR(object):
         #     'feature_emb': feature_emb
         # }
         # load fm epoch
-        embeds = load_embed(data_name, embed, epoch=fm_epoch)
+        embeds = load_embed(data_name, embed, epoch=fm_epoch, mode='train')
         print(embeds.keys())
         
         if embeds:
@@ -112,11 +112,11 @@ class BinaryRecommendEnvPGPR(object):
 
     def __load_rl_data__(self, data_name, mode):
         if mode == 'train':
-            with open(os.path.join(f'{DATA_DIR[data_name]}', f'UI_Interaction_data/review_dict_valid_{self.domain}.json')) as f:
+            with open(os.path.join(f'{TMP_DIR[data_name]}', f'review_dict_valid_{self.domain}.json')) as f:
                 print('train_data: load RL valid data')
                 mydict = json.load(f)
         elif mode == 'test':
-            with open(os.path.join(f'{DATA_DIR[data_name]}', f'UI_Interaction_data/review_dict_test_{self.domain}.json')) as f:
+            with open(os.path.join(f'{TMP_DIR[data_name]}', f'review_dict_test_{self.domain}.json')) as f:
                 print('test_data: load RL test data')
                 mydict = json.load(f)
                 

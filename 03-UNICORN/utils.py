@@ -63,8 +63,8 @@ def save_dataset(dataset, dataset_obj):
     with open(dataset_file, 'wb') as f:
         pickle.dump(dataset_obj, f)
 
-def load_dataset(dataset):
-    dataset_file = TMP_DIR[dataset] + '/dataset.pkl'
+def load_dataset(dataset, mode='train'):
+    dataset_file = TMP_DIR[dataset] + f'/{mode}_dataset.pkl'
     dataset_obj = pickle.load(open(dataset_file, 'rb'))
     return dataset_obj
 
@@ -72,24 +72,25 @@ def save_kg(dataset, kg):
     kg_file = TMP_DIR[dataset] + '/kg.pkl'
     pickle.dump(kg, open(kg_file, 'wb'))
 
-def load_kg(dataset):
-    kg_file = TMP_DIR[dataset] + '/kg.pkl'
+def load_kg(dataset, mode='train'):
+    kg_file = TMP_DIR[dataset] + f'/{mode}_kg.pkl'
     kg = pickle.load(open(kg_file, 'rb'))
     return kg
+
+def load_graph(dataset, mode='train'):
+    graph_file = TMP_DIR[dataset] + f'/{mode}_graph.pkl'
+    graph = pickle.load(open(graph_file, 'rb'))
+    return graph
 
 def save_graph(dataset, graph):
     graph_file = TMP_DIR[dataset] + '/graph.pkl'
     pickle.dump(graph, open(graph_file, 'wb'))
 
-def load_graph(dataset):
-    graph_file = TMP_DIR[dataset] + '/graph.pkl'
-    graph = pickle.load(open(graph_file, 'rb'))
-    return graph
 
-
-def load_embed(dataset, embed, epoch):
+def load_embed(dataset, embed, epoch, mode='train'):
     if embed:
-        path = TMP_DIR[dataset] + '/embeds/' + '{}.pkl'.format(embed)
+        # path = TMP_DIR[dataset] + '/embeds/' + '{}.pkl'.format(embed)
+        path = TMP_DIR[dataset] + f'/{mode}_{embed}_embed.pkl'
     else:
         return None
     with open(path, 'rb') as f:

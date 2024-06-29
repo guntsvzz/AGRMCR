@@ -38,7 +38,6 @@ class GraphConvolution(Module):
         else:
             return output
 
-
 class GraphEncoder(Module):
     def __init__(self, device, entity, emb_size, kg, embeddings=None, fix_emb=True, seq='rnn', gcn=True, hidden_size=100, layers=1, rnn_layer=1):
         super(GraphEncoder, self).__init__()

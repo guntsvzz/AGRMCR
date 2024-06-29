@@ -6,6 +6,7 @@ import random
 from utils import *
 import json
 
+
 class Dataset(object):
     def __init__(self, data_dir, data_args, set_name):
         self.data_dir = data_dir
