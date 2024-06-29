@@ -1,28 +1,5 @@
 # AGRMCR - Adapting Graph Reasoning for Explainable Cold Start Recommendation on Multi-Round Conversation Recommendation
 
-
-## TO-DO
-- Preprocessing dataset (JRL)
-    - Download metadata and 5-core Amazon dataset
-        - [x] Beauty
-        - [x] CDs_and_Vinyl
-        - [x] Clothing_Shoes_and_Jewelry
-        - [x] Cell_Phones_and_Accessories
-    - [x] constructing `like`/`dislike`
-    - [x] adding `feature` to MCR dataset
-    - [x] config `feature` for UPGPR
-- Training Model
-    - [x] Transitional Embedding 
-    - [x] Train/Eval RL agent for MCR
-    - [x] Train/Eval RL agent for UPGPR
-    - [x] changing cold-start embedding value for AGRMCR
-- User Preference 
-    - [x] Matching features which are brand/category 
-    - [x] Translation
-    - [ ] Trim
-- Baseline
-    - [x] run_baseline.sh
-
 ## Environment Setup 
 <details>
 <summary> 1. Requirements </summary>
@@ -403,6 +380,28 @@ done
 ```
 
 </details>
+
+## TO-DO
+- Preprocessing dataset (JRL)
+    - Download metadata and 5-core Amazon dataset
+        - [x] Beauty
+        - [x] CDs_and_Vinyl
+        - [x] Clothing_Shoes_and_Jewelry
+        - [x] Cell_Phones_and_Accessories
+    - [x] constructing `like`/`dislike`
+    - [x] adding `feature` to MCR dataset
+    - [x] config `feature` for UPGPR
+- Training Model
+    - [x] Transitional Embedding 
+    - [x] Train/Eval RL agent for MCR
+    - [x] Train/Eval RL agent for UPGPR
+    - [x] changing cold-start embedding value for AGRMCR
+- User Preference 
+    - [x] Matching features which are brand/category 
+    - [x] Translation
+    - [ ] Trim
+- Baseline
+    - [x] run_baseline.sh
 
 ## Citation
 Todsavad Tangtortan, Pranisaa Charnparttaravanit, Akraradet Sinsamersuk, Chaklam Silpasuwanchai. 2024. Adapting Graph Reasoning for Explainable Cold Start Recommendation on Multi-Round Conversation Recommendation (AGRMCR). 
