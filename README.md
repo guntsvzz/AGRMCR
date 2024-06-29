@@ -91,8 +91,10 @@ Four Amazon datasets (Amazon_Beauty, Amazon_CDs, Amazon_Cellphones, Amazon_Cloth
 5. Matching Feature
 
 ```bash
-source JRL/preprocessing_data.sh
+source 01-JRL/preprocessing_data.sh
+source 01-JRL/clone_to_pr.sh
 ```
+
 <details>
 <summary> Details code </summary>
 
@@ -148,6 +150,8 @@ This script processes the data to generate relation files, which describe variou
 5. Evaluation
 
 ```bash
+source 02-GRECS/run_grec.sh
+source 02-GRECS/clone_to_mcr.sh
 ```
 
 </details>
@@ -202,7 +206,7 @@ This script processes the purchase.txt to generate pair(user,item) of train/test
 2. Evaluation RL Agent
 
 ```bash
-source UNICORN/run_unicorn.sh
+source 03-UNICORN/run_unicorn.sh
 ```
 
 <details>
