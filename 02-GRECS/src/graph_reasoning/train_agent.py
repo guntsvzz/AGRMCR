@@ -53,13 +53,7 @@ def train(config):
     # max_hit_rate_validation_set = 0
     # patience = args.patience
 
-    total_losses, total_plosses, total_vlosses, total_entropy, total_rewards = (
-        [],
-        [],
-        [],
-        [],
-        [],
-    )
+    total_losses, total_plosses, total_vlosses, total_entropy, total_rewards = ([],[],[],[],[],)
     step = 0
     model.train()
     for epoch in tqdm(range(1, config_agent.epochs + 1)):

@@ -32,7 +32,10 @@ class BatchKGEnvironment(object):
         #     print("delete kg.G['item']['feature']")
         #     del self.kg.G['item']['feature']
         print('Updated kg.G.keys', self.kg.G.keys())
-        self.embeds = load_embed(data_path, self.set_name)
+        if self.set_name == 'test':
+            self.embeds = load_embed(data_path, 'train')
+        else:
+            self.embeds = load_embed(data_path, self.set_name)
         print('Key embed', self.embeds.keys())
         self.embed_size = self.embeds["user"].shape[1]
         self.embeds[kg_args.self_loop] = (np.zeros(self.embed_size), 0.0)

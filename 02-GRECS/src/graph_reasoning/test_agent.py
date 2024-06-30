@@ -43,15 +43,7 @@ def evaluate(
     user_metrics = dict()
 
     # Compute metrics
-    precisions, recalls, ndcgs, hits, hits_at_1, hits_at_3, hits_at_5 = (
-        [],
-        [],
-        [],
-        [],
-        [],
-        [],
-        [],
-    )
+    precisions, recalls, ndcgs, hits, hits_at_1, hits_at_3, hits_at_5 = ([], [], [], [], [], [], [], )
     (
         precisions_all,
         recalls_all,
@@ -401,7 +393,8 @@ def evaluate_paths(
     set_name="test",
     validation=False,
 ):
-    embeds = load_embed(dir_path, set_name)
+    # embeds = load_embed(dir_path, set_name)
+    embeds = load_embed(dir_path, 'train')
     user_embeds = embeds["user"]
     interaction_embeds = embeds[kg_config.interaction][0]
     item_embeds = embeds["item"]

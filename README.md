@@ -153,7 +153,10 @@ This script processes the data to generate relation files, which describe variou
 source 02-GRECS/run_grec.sh
 source 02-GRECS/clone_to_mcr.sh
 ```
-
+<details> 
+<summary>Details code</summary>
+```bash
+```
 </details>
 
 <details>
@@ -210,6 +213,7 @@ source 03-UNICORN/run_unicorn.sh
 ```
 
 <details>
+
 <summary>Details code</summary>
 
 ```bash

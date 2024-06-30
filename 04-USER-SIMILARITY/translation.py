@@ -111,7 +111,6 @@ class InitalUserEmbedding:
         idx_cand_user = np.argmin(distances)
         return distances, idx_cand_user
 
-
     def distance(self, user_pref_embed):
         similarity, idx_user = self.cos_sim(user_pref_embed, self.embeds['user'])
         print('Cosine Similarity', similarity)
@@ -119,8 +118,7 @@ class InitalUserEmbedding:
         print("Euclidean distance:", distance)
         cand_user_emb = self.embeds['user'][idx_user]
         return idx_user, cand_user_emb
-        
-        
+                
     def trim(self):
         pass
        
@@ -143,4 +141,6 @@ if __name__ == '__main__':
     idx_cand_user, cand_user_emb = init_emb.distance(user_pref_emb)
     
     ##Take cand_user_emb to Path Reasoning
+    
+    ##Take trim Path Reasoning
         
