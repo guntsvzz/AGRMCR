@@ -8,3 +8,8 @@ __pycache__
 *.txt
 *.qrels
 *.ckpt
+*.item
+*.kg
+*.link
+*.inter
+*.user

@@ -130,7 +130,7 @@ class Agent(object):
             epoch_user=epoch_user
             )
     def load_model(self, data_name, filename, epoch_user):
-        model_dict = load_rl_agent(dataset=data_name, filename=filename, epoch_user=epoch_user)
+        model_dict = load_rl_agent(dataset=data_name, filename=filename, epoch_user=epoch_user, device=self.device)
         self.policy_net.load_state_dict(model_dict['policy'])
         self.gcn_net.load_state_dict(model_dict['gcn'])
     

@@ -187,7 +187,9 @@ This script processes the purchase.txt to generate pair(user,item) of train/test
 - `train_kg.pkl`            :
 - `test_kg.pkl`             :
 - `validation_kg.pkl`       :
-
+- `train_label.pkl`         :
+- `test_label.pkl`          :
+- `validation_label.pkl`    :
 
 ### STEP 3 : Transitional Embedding (TransE) [3] `train_transe_model.py`
 #### Generated Files:

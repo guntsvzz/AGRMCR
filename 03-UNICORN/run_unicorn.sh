@@ -4,7 +4,7 @@ echo "--------------------------------------------------------"
 
 MAX_STEPS=10
 SAMPLE_TIMES=1000
-# max_steps==train_step & sample_times=episode
+#Episode = max_steps * sample_times
 echo "------------- step 1: Training RL Agent --------------"
 start=$(date +%s)
 echo "Start time: $(date)"

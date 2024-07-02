@@ -393,8 +393,8 @@ def evaluate_paths(
     set_name="test",
     validation=False,
 ):
-    # embeds = load_embed(dir_path, set_name)
-    embeds = load_embed(dir_path, 'train')
+    embeds = load_embed(dir_path, set_name)
+    # embeds = load_embed(dir_path, 'train')
     user_embeds = embeds["user"]
     interaction_embeds = embeds[kg_config.interaction][0]
     item_embeds = embeds["item"]
@@ -545,7 +545,12 @@ def test(config):
     )
 
     if config_agent.run_path:
-        predict_paths(policy_file, path_file, config, config_agent, kg_config)
+        predict_paths(
+            policy_file, 
+            path_file, config, 
+            config_agent, 
+            kg_config
+        )
     if config_agent.run_eval:
         evaluate_paths(
             config.processed_data_dir,
