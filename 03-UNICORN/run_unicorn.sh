@@ -8,9 +8,13 @@ SAMPLE_TIMES=1000
 echo "------------- step 1: Training RL Agent --------------"
 start=$(date +%s)
 echo "Start time: $(date)"
+echo "------------- Beauty -------------------------"
 python3 RL_model.py --data_name BEAUTY      --domain Beauty     --max_steps ${MAX_STEPS} --sample_times ${SAMPLE_TIMES} --embed transe
+echo "------------- Cellphones ---------------------"
 python3 RL_model.py --data_name CELLPHONES  --domain Cellphones --max_steps ${MAX_STEPS} --sample_times ${SAMPLE_TIMES} --embed transe
+echo "------------- Clothing -----------------------"
 python3 RL_model.py --data_name CLOTH       --domain Cloth      --max_steps ${MAX_STEPS} --sample_times ${SAMPLE_TIMES} --embed transe
+echo "------------- CDs ----------------------------"
 python3 RL_model.py --data_name CDS         --domain CDs        --max_steps ${MAX_STEPS} --sample_times ${SAMPLE_TIMES} --embed transe
 end=$(date +%s)
 echo "End time: $(date)"
@@ -21,9 +25,13 @@ echo "--------------------------------------------------------"
 echo "------------- step 2: Evaluation RL Agent --------------"
 start=$(date +%s)
 echo "Start time: $(date)"
+echo "------------- Beauty -------------------------"
 python3 evaluate.py --data_name BEAUTY      --domain Beauty     --load_rl_epoch ${MAX_STEPS} --embed transe
+echo "------------- Cellphones ---------------------"
 python3 evaluate.py --data_name CELLPHONES  --domain Cellphones --load_rl_epoch ${MAX_STEPS} --embed transe
+echo "------------- Clothing -----------------------"
 python3 evaluate.py --data_name CLOTH       --domain Cloth      --load_rl_epoch ${MAX_STEPS} --embed transe
+echo "------------- CDs ----------------------------"
 python3 evaluate.py --data_name CDS         --domain CDs        --load_rl_epoch ${MAX_STEPS} --embed transe
 end=$(date +%s)
 echo "End time: $(date)"

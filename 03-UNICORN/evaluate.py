@@ -28,6 +28,7 @@ from RL_model import Agent, ReplayMemoryPER
 from gcn import GraphEncoder
 import time
 import warnings
+import json
 
 warnings.filterwarnings("ignore")
 EnvDict = {
@@ -67,7 +68,7 @@ def evaluate(args, kg, dataset, filename):
         cand_num=args.cand_num, 
         cand_item_num=args.cand_item_num, 
         attr_num=args.attr_num, 
-        mode='test', 
+        mode=args.mode,
         ask_num=args.ask_num, 
         entropy_way=args.entropy_method,
         fm_epoch=args.fm_epoch, 
@@ -129,29 +130,34 @@ def evaluate(args, kg, dataset, filename):
             if args.eval_num == 1:
                 test_size = int(0.1 * user_size)
             else:
-                test_size = int(0.01 * user_size)
+                # test_size = int(0.01 * user_size)
+                test_size = user_size
         elif args.domain == 'CDs':
             if args.eval_num == 1:
                 test_size = int(0.1 * user_size)
             else:
-                test_size = int(0.01 * user_size) 
-        elif args.domain == 'Cloth':
+                # test_size = int(0.003 * user_size) 
+                test_size = user_size
+        elif args.domain == 'Clothing':
             if args.eval_num == 1:
                 test_size = int(0.1 * user_size)
             else:
-                test_size = int(0.01 * user_size)
+                # test_size = int(0.01 * user_size)
+                test_size = user_size
         elif args.domain == 'Cellphones':
             if args.eval_num == 1:
                 test_size = int(0.1 * user_size)
             else:
-                test_size = int(0.01 * user_size)
-        
+                # test_size = int(0.01 * user_size)
+                test_size = user_size
         user_size = test_size
     
     print('The select Test size : ', user_size)
+    user_preferences = {}
+    # At the beginning of your code, initialize an empty dictionary to store the user preferences
     for user_num in tqdm(range(user_size), desc='User Sampling'):  #user_size
         # TODO uncommend this line to print the dialog process
-        # blockPrint()
+        blockPrint()
         print('\n================test tuple:{}===================='.format(user_num))
         success = False
         while not success:
@@ -215,22 +221,36 @@ def evaluate(args, kg, dataset, filename):
             SR5, SR10, SR15, AvgT, Rank = 0, 0, 0, 0, 0
             SR_turn_15 = [0] * args.max_turn
             tt = time.time()
-        # enablePrint()
         
         # user's profile
-        user_acc_feature = test_env.user_acc_feature 
-        user_rej_feature = test_env.user_rej_feature 
-        item_rej = list(set(test_env.item_rej))
-        cand_items = test_env.cand_items
-        idx_user = test_env.ui_array[user_num][0]
-        idx_item = test_env.ui_array[user_num][1]
-        print("user's profile")
-        print('user', idx_user)
-        print('item', idx_item)
-        print('user_acc_feature', user_acc_feature)
-        print('user_rej_feature', user_rej_feature)
-        print('item_rej', item_rej)
+        user_acc_feature = test_env.user_acc_feature
+        user_rej_feature = test_env.user_rej_feature
+        user_rej_items = list(set(test_env.user_rej_items))
+        cand_items = test_env.cand_items #.tolist()
+        idx_user = test_env.ui_array[user_num][0].tolist()
+        idx_item = test_env.ui_array[user_num][1].tolist()
+        # print("user's profile")
+        # print('user_id =', idx_user)
+        # print('target_item =', idx_item)
+        # print('user_acc_feature =', user_acc_feature)
+        # print('user_rej_feature =', user_rej_feature)
+        # print('user_rej_items =', user_rej_items)
         # print('Number of cand_items', len(cand_items))
+        
+        # Store user profile in the dictionary
+        user_preferences[str(user_num)] = {
+            "idx_user": idx_user,
+            "idx_item": idx_item,
+            "user_acc_feature": user_acc_feature,
+            "user_rej_feature": user_rej_feature,
+            "user_rej_items": user_rej_items
+        }
+        
+        # enablePrint()
+    
+    # At the end of your code, save the dictionary to a JSON file
+    with open(TMP_DIR[args.data_name] + f'/user_preference_{args.domain}.json' , 'w') as f:
+        json.dump(user_preferences, f)
         
     SR5_mean = np.mean(np.array([item[0] for item in result]))
     SR10_mean = np.mean(np.array([item[1] for item in result]))
@@ -286,14 +306,14 @@ def main():
 
     parser.add_argument('--data_name', type=str, default=AMAZON, choices=[BEAUTY, CELLPHONES, CLOTH, CDS, AMAZON, AMAZON_STAR, LAST_FM, LAST_FM_STAR, YELP, YELP_STAR],
                         help='One of {BEAUTY, CELLPHONES, CLOTH, CDS, AMAZON, AMAZON_STAR, LAST_FM, LAST_FM_STAR, YELP, YELP_STAR}.')
-    parser.add_argument('--domain', type=str, default='Beauty', choices=['Beauty','Cellphones', 'Cloth', 'CDs'],
-                        help='One of {CDs, Beauty, Cloth, Cell, Appliances, Office_Products, Electronics, Sports_and_Outdoors, Clothing_Shoes_and_Jewelry}.')
+    parser.add_argument('--domain', type=str, default='Beauty', choices=['Beauty','Cellphones', 'Clothing', 'CDs'],
+                        help='One of {CDs, Beauty, Clothing, Cellphones,}.')
     parser.add_argument('--entropy_method', type=str, default='weight_entropy', help='entropy_method is one of {entropy, weight entropy}')
     # Although the performance of 'weighted entropy' is better, 'entropy' is an alternative method considering the time cost.
     parser.add_argument('--max_turn', type=int, default=15, help='max conversation turn')
     parser.add_argument('--cand_len_size', type=int, default=20, help='binary state size for the length of candidate items')
     parser.add_argument('--attr_num', type=int, help='the number of attributes')
-    parser.add_argument('--mode', type=str, default='train', help='the mode in [train, test]')
+    parser.add_argument('--mode', type=str, default='test', help='the mode in [train, test, test_cold_start]')
     parser.add_argument('--ask_num', type=int, default=1, help='the number of features asked in a turn')
     parser.add_argument('--observe_num', type=int, default=5, help='the number of epochs to save RL model and metric')
     parser.add_argument('--load_rl_epoch', type=int, default=0, help='the epoch of loading RL model')
@@ -307,8 +327,7 @@ def main():
     parser.add_argument('--embed', type=str, default='None', help='pretrained embeddings', choices=['transe', None])
     parser.add_argument('--seq', type=str, default='transformer', choices=['rnn', 'transformer', 'mean'], help='sequential learning method')
     parser.add_argument('--gcn', action='store_false', help='use GCN or not')
-
-
+    
     args = parser.parse_args()
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
     args.device = torch.device('cuda') if torch.cuda.is_available() else 'cpu'
@@ -317,7 +336,7 @@ def main():
     if args.data_name == AMAZON:
         kg = AmazonGraph(args.domain)    
     else:
-        kg = load_kg(args.data_name, mode='train')
+        kg = load_kg(args.data_name, mode='test')
         print(kg.G.keys())
         print('Number of user',len(kg.G['user']))
         print('Number of item',len(kg.G['item']))

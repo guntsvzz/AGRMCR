@@ -28,12 +28,12 @@ for each in set_name:
             result[key] = []
         result[key].append(value)
 
-    # Sort the dictionary by keys
-    review = OrderedDict(sorted(result.items()))
     if each == 'train':
         each = 'valid'
+        review = OrderedDict(sorted(result.items())) # Sort the dictionary by keys
     if each == 'test':
         each = 'test'
+        review = result #no need to sort
     save_path_review = f'data/{dataset_name.lower()}/Amazon_{dataset_name}_01_01/review_dict_{each}_{dataset_name}.json'
 
     # Convert dictionary to JSON and save to a file

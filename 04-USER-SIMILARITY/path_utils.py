@@ -265,7 +265,7 @@ def evaluate_validation(topk_matches, test_user_products):
     return avg_hit
 
 
-def batch_beam_search(env, model, kg_config, uids, device, topk=[10, 3, 1], policy=0):
+def batch_beam_search(env, model, kg_config, uids, device, topk=[10, 3, 1], policy=0, user_pref_embed=None):
     def _batch_acts_to_masks(batch_acts):
         batch_masks = []
         for acts in batch_acts:
@@ -279,14 +279,14 @@ def batch_beam_search(env, model, kg_config, uids, device, topk=[10, 3, 1], poli
             batch_masks.append(act_mask)
         return np.vstack(batch_masks)
 
-    state_pool = env.reset(uids)  # numpy of [bs, dim]
+    state_pool = env.reset(uids, user_pref_embed)  # numpy of [bs, dim]
     path_pool = env._batch_path  # list of list, size=bs
     probs_pool = [[] for _ in uids]
     model.eval()
     for hop in range(len(topk)):
         # first_action = hop == 1
         state_tensor = torch.FloatTensor(state_pool).to(device)
-        acts_pool = env._batch_get_actions(path_pool, False)  # list of list, size=bs
+        acts_pool = env._batch_get_actions(path_pool, False, user_pref_embed)  # list of list, size=bs
         actmask_pool = _batch_acts_to_masks(acts_pool)  # numpy of [bs, dim]
         actmask_tensor = torch.ByteTensor(actmask_pool).to(device)
         batch_act_embeddings = env.batch_action_embeddings(
@@ -353,12 +353,9 @@ def predict_paths(
     model_sd.update(pretrain_sd)
     model.load_state_dict(model_sd)
 
-    if set_name in ['test', 'test_cold_start']:
-        test_labels = load_labels(config.processed_data_dir, "test")
-    else:
-        test_labels = load_labels(config.processed_data_dir, set_name)
+    test_labels = load_labels(config.processed_data_dir, set_name) 
     test_uids = list(test_labels.keys())
-
+    
     batch_size = 16
     start_idx = 0
     all_paths, all_probs = [], []
@@ -395,8 +392,10 @@ def evaluate_paths(
     result_file_dir,
     set_name="test",
     validation=False,
+    user_rej_items=None
 ):
     embeds = load_embed(dir_path, set_name)
+    # embeds = load_embed(dir_path, 'train')
     user_embeds = embeds["user"]
     interaction_embeds = embeds[kg_config.interaction][0]
     item_embeds = embeds["item"]
@@ -412,6 +411,9 @@ def evaluate_paths(
         if uid not in pred_paths:
             continue
         pid = path[-1][2]
+        # 2) Triming item which are assosiacted with user_rej_items        
+        if pid in user_rej_items: 
+            continue  # Skip this item if it's in the user_rej_items list
         if pid not in pred_paths[uid]:
             pred_paths[uid][pid] = []
         path_score = scores[uid][pid]
@@ -504,121 +506,3 @@ def evaluate_paths(
             min_items=10,
             compute_all=True,
         )
-
-
-def test(config, set_name):
-    config_agent = config.AGENT
-    kg_config = config.KG_ARGS
-
-    policy_file = config_agent.log_dir + "/tmp_policy_model_epoch_{}.ckpt".format(
-        config_agent.epochs
-    )
-    if set_name == 'test':
-        path_file = config_agent.log_dir + "/policy_paths_epoch_{}.pkl".format(
-            config_agent.epochs
-        )
-    elif set_name == 'test_cold_start':
-        path_file = config_agent.log_dir + "/policy_paths_epoch_{}_cold_start.pkl".format(
-            config_agent.epochs
-        )
-
-    train_labels = load_labels(config.processed_data_dir, "train")
-    test_labels = load_labels(config.processed_data_dir, "test")
-
-    dataset_name = config.processed_data_dir.split("/")[-1]
-
-    model_name = (
-        "UPGPR_len_"
-        + str(config_agent.max_path_len)
-        + "_"
-        + config.AGENT.reward
-        + "_"
-        + config.TRAIN_EMBEDS.cold_start_embeddings
-        + "_mask_"
-        + str(config.AGENT.mask_first_interaction)
-        + "_max_cold_concept_"
-        + str(kg_config.max_nb_cold_entities)
-        + "_topk_"
-        + "_".join(map(str, config_agent.topk))
-    )
-
-    config_agent.result_file_dir = os.path.join(
-        config_agent.result_file_dir, dataset_name, model_name, str(config.seed)
-    )
-
-    os.makedirs(
-        config_agent.result_file_dir,
-        exist_ok=True,
-    )
-
-    if config_agent.run_path:
-        predict_paths(
-            policy_file, 
-            path_file, config, 
-            config_agent, 
-            kg_config,
-            set_name = set_name
-        )
-    if config_agent.run_eval:
-        evaluate_paths(
-            config.processed_data_dir,
-            path_file,
-            train_labels,
-            test_labels,
-            kg_config,
-            config.use_wandb,
-            config_agent.result_file_dir,
-            set_name = set_name,
-            validation=False,
-        )
-
-
-if __name__ == "__main__":
-    boolean = lambda x: (str(x).lower() == "true")
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--config",
-        type=str,
-        help="Config file.",
-        default="config/moocube_01_01/UPGPR_test.json",
-    )
-    parser.add_argument(
-        "--seed", 
-        type=int, 
-        help="Random seed.", 
-        default=0
-    )
-    parser.add_argument(
-        "--set_name", 
-        type=str, 
-        help="Set name.", 
-        default="test", 
-        choices=['train','test', 'test_cold_start']
-    )
-    args = parser.parse_args()
-
-    with open(args.config, "r") as f:
-        config = edict(json.load(f))
-
-    config.seed = args.seed
-    config_agent = config.AGENT
-
-    if config.use_wandb:
-        wandb.init(
-            project=config.wandb_project_name,
-            name=config.wandb_run_name,
-            config=config,
-        )
-
-    os.environ["CUDA_VISIBLE_DEVICES"] = config_agent.gpu
-    config_agent.device = torch.device("cuda:0") if torch.cuda.is_available() else "cpu"
-
-    if config_agent.early_stopping == True:
-        with open("early_stopping.txt", "r") as f:
-            config_agent.epochs = int(f.read())
-
-    config_agent.log_dir = config.processed_data_dir + "/" + config_agent.name
-    test(config, args.set_name)
-
-    if config.use_wandb:
-        wandb.finish()

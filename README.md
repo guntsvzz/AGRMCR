@@ -112,12 +112,15 @@ source 01-JRL/clone_to_pr.sh
 
 This script processes the review data to generate various entity files.
 #### Generated Files:
-- `vocab.txt`: Contains a list of unique words from the reviews.
-- `user.txt`: Contains a list of unique user IDs.
-- `product.txt`: Contains a list of unique product IDs.
-- `review_text.txt`: Contains the text of the reviews.
-- `review_u_p.txt`: Maps reviews to users and products.
-- `review_id.txt`: Contains unique review IDs.
+- `vocab.txt`       : Contains a list of unique words from the reviews.
+- `user.txt`        : Contains a list of unique user IDs.
+- `product.txt`     : Contains a list of unique product IDs.
+- `review_text.txt` : Contains the text of the reviews.
+- `review_u_p.txt`  : Maps reviews to users and products.
+- `review_id.txt`   : Contains unique review IDs.
+- `train.txt`       : 
+- `test.txt`        :
+- `validation.txt`  :
 
 ### STEP 2 : Split datasets for training and test 
 `split_train_test.py`
@@ -178,9 +181,8 @@ This script processes the review data to generate various entity files.
 
 This script processes the purchase.txt to generate pair(user,item) of train/test/validation.txt
 #### Generated Files:
-- `train.txt`               : 
-- `test.txt`                :
-- `validation.txt`          :
+- `cold_start_users.json`   :
+- `cold_start_items.json`   :
 - `train_dataset.pkl`       :
 - `test_dataset.pkl`        :
 - `valiation_dataset.pkl`   :

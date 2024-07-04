@@ -40,7 +40,7 @@ DATA_DIR = {
     AMAZON_STAR : './data/amazon_star',
     BEAUTY      : './data/beauty',
     CELLPHONES  : './data/cellphones',
-    CLOTH       : './data/cloth',
+    CLOTH       : './data/clothing',
     CDS         : './data/cds',
 }
 TMP_DIR = {
@@ -52,7 +52,7 @@ TMP_DIR = {
     AMAZON_STAR : './tmp/amazon_star',
     BEAUTY      : './tmp/beauty',
     CELLPHONES  : './tmp/cellphones',
-    CLOTH       : './tmp/cloth',
+    CLOTH       : './tmp/clothing',
     CDS         : './tmp/cds',
 }
 def cuda_(var):

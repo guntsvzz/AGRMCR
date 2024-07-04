@@ -353,10 +353,7 @@ def predict_paths(
     model_sd.update(pretrain_sd)
     model.load_state_dict(model_sd)
 
-    if set_name in ['test', 'test_cold_start']:
-        test_labels = load_labels(config.processed_data_dir, "test")
-    else:
-        test_labels = load_labels(config.processed_data_dir, set_name)
+    test_labels = load_labels(config.processed_data_dir, set_name)
     test_uids = list(test_labels.keys())
 
     batch_size = 16
@@ -397,6 +394,7 @@ def evaluate_paths(
     validation=False,
 ):
     embeds = load_embed(dir_path, set_name)
+    # embeds = load_embed(dir_path, 'train')
     user_embeds = embeds["user"]
     interaction_embeds = embeds[kg_config.interaction][0]
     item_embeds = embeds["item"]
@@ -506,21 +504,16 @@ def evaluate_paths(
         )
 
 
-def test(config, set_name):
+def test(config):
     config_agent = config.AGENT
     kg_config = config.KG_ARGS
 
     policy_file = config_agent.log_dir + "/tmp_policy_model_epoch_{}.ckpt".format(
         config_agent.epochs
     )
-    if set_name == 'test':
-        path_file = config_agent.log_dir + "/policy_paths_epoch_{}.pkl".format(
-            config_agent.epochs
-        )
-    elif set_name == 'test_cold_start':
-        path_file = config_agent.log_dir + "/policy_paths_epoch_{}_cold_start.pkl".format(
-            config_agent.epochs
-        )
+    path_file = config_agent.log_dir + "/policy_paths_epoch_{}.pkl".format(
+        config_agent.epochs
+    )
 
     train_labels = load_labels(config.processed_data_dir, "train")
     test_labels = load_labels(config.processed_data_dir, "test")
@@ -556,8 +549,7 @@ def test(config, set_name):
             policy_file, 
             path_file, config, 
             config_agent, 
-            kg_config,
-            set_name = set_name
+            kg_config
         )
     if config_agent.run_eval:
         evaluate_paths(
@@ -568,7 +560,6 @@ def test(config, set_name):
             kg_config,
             config.use_wandb,
             config_agent.result_file_dir,
-            set_name = set_name,
             validation=False,
         )
 
@@ -582,19 +573,8 @@ if __name__ == "__main__":
         help="Config file.",
         default="config/moocube_01_01/UPGPR_test.json",
     )
-    parser.add_argument(
-        "--seed", 
-        type=int, 
-        help="Random seed.", 
-        default=0
-    )
-    parser.add_argument(
-        "--set_name", 
-        type=str, 
-        help="Set name.", 
-        default="test", 
-        choices=['train','test', 'test_cold_start']
-    )
+    parser.add_argument("--seed", type=int, help="Random seed.", default=0)
+
     args = parser.parse_args()
 
     with open(args.config, "r") as f:
@@ -618,7 +598,7 @@ if __name__ == "__main__":
             config_agent.epochs = int(f.read())
 
     config_agent.log_dir = config.processed_data_dir + "/" + config_agent.name
-    test(config, args.set_name)
+    test(config)
 
     if config.use_wandb:
         wandb.finish()

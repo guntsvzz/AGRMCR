@@ -48,7 +48,7 @@ class BinaryRecommendEnvPGPR(object):
         self.cand_items = []   # candidate items
         self.item_feature_pair = {}
         self.cand_item_score = []
-        self.item_rej = []
+        self.user_rej_items = []
 
         #user_id  item_id   cur_step   cur_node_set
         self.user_id = None
@@ -69,7 +69,8 @@ class BinaryRecommendEnvPGPR(object):
         set_random_seed(self.seed) # set random seed
         if mode == 'train':
             self.__user_dict_init__() # init self.user_weight_dict  and  self.user_items_dict
-        elif mode == 'test':
+        # elif mode == 'test':
+        elif mode in ['test', 'test_cold_start']:
             self.ui_array = None    # u-i array [ [userID1, itemID1], ...,[userID2, itemID2]]
             self.__test_tuple_generate__()
             self.test_num = 0
@@ -78,6 +79,7 @@ class BinaryRecommendEnvPGPR(object):
         #     'feature_emb': feature_emb
         # }
         # load fm epoch
+        # embeds = load_embed(data_name, embed, epoch=fm_epoch)
         embeds = load_embed(data_name, embed, epoch=fm_epoch, mode='train')
         print(embeds.keys())
         
@@ -119,6 +121,10 @@ class BinaryRecommendEnvPGPR(object):
             with open(os.path.join(f'{TMP_DIR[data_name]}', f'review_dict_test_{self.domain}.json')) as f:
                 print('test_data: load RL test data')
                 mydict = json.load(f)
+        elif mode == 'test_cold_start':
+            with open(os.path.join(f'{TMP_DIR[data_name]}', f'review_dict_test_cold_start_{self.domain}.json')) as f:
+                print('test_data: load RL test data')
+                mydict = json.load(f)
                 
         # Remove strings from the lists in mydict
         # for key, interact in mydict.items():
@@ -145,7 +151,7 @@ class BinaryRecommendEnvPGPR(object):
             for item_id in items:
                 ui_list.append([user_id, item_id])
         self.ui_array = np.array(ui_list)
-        np.random.shuffle(self.ui_array)
+        # np.random.shuffle(self.ui_array)
         print("Number of test ui", len(self.ui_array))
 
     def increment_test_num(self):
@@ -165,7 +171,8 @@ class BinaryRecommendEnvPGPR(object):
             self.user_id = np.random.choice(users) 
             self.target_item = int(np.random.choice(self.ui_dict[str(self.user_id)]))
         
-        elif self.mode == 'test':
+        # elif self.mode == 'test':
+        elif self.mode in ['test', 'test_cold_start']:
             self.user_id = self.ui_array[self.test_num, 0]
             self.target_item = self.ui_array[self.test_num, 1]
             self.test_num += 1
@@ -475,7 +482,7 @@ class BinaryRecommendEnvPGPR(object):
                     idx = self.cand_items.index(item)
                     self.cand_items.pop(idx)
                     self.cand_item_score.pop(idx)
-                    self.item_rej.append(item)  
+                    self.user_rej_items.append(item)  
                 #self.cand_items = self.cand_items[self.rec_num:]  #update candidate items
             done = 0
         return reward, done

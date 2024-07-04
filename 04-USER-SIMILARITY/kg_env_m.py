@@ -21,10 +21,7 @@ class BatchKGEnvironment(object):
         self.act_dim = max_acts + 1  # Add self-loop action, whose act_idx is always 0.
         self.max_num_nodes = max_path_len + 1  # max number of hops (= #nodes - 1)
         self.set_name = set_name
-        if self.set_name in ['test', 'test_cold_start']:
-            self.kg = load_kg(data_path, 'test')
-        else:
-            self.kg = load_kg(data_path, self.set_name)
+        self.kg = load_kg(data_path, self.set_name)
         print('Orginal kg.G.keys', self.kg.G.keys())
         # Removing the 'feature' key
         if 'feature' in self.kg.G:
@@ -35,10 +32,10 @@ class BatchKGEnvironment(object):
         #     print("delete kg.G['item']['feature']")
         #     del self.kg.G['item']['feature']
         print('Updated kg.G.keys', self.kg.G.keys())
-        # if self.set_name == 'test':
-        #     self.embeds = load_embed(data_path, 'train')
-        # else:
-        self.embeds = load_embed(data_path, self.set_name)
+        if self.set_name == 'test':
+            self.embeds = load_embed(data_path, 'train')
+        else:
+            self.embeds = load_embed(data_path, self.set_name)
         print('Key embed', self.embeds.keys())
         self.embed_size = self.embeds["user"].shape[1]
         self.embeds[kg_args.self_loop] = (np.zeros(self.embed_size), 0.0)
@@ -330,7 +327,7 @@ class BatchKGEnvironment(object):
     def _batch_has_pattern(self, batch_path):
         return [self._has_pattern(path) for path in batch_path]
 
-    def _get_actions(self, path, done):
+    def _get_actions(self, path, done, user_pref_embed = None):
         """Compute actions for current node."""
         _, curr_node_type, curr_node_id = path[-1]
         actions = [
@@ -376,7 +373,10 @@ class BatchKGEnvironment(object):
             return actions
 
         # (5) If there are too many actions, do some deterministic trimming here!
-        user_embed = self.embeds["user"][path[0][-1]]
+        if user_pref_embed is None:
+            user_embed = self.embeds["user"][path[0][-1]]
+        else:
+            user_embed = user_pref_embed #self.embeds["user"][path[0][-1]] + user_pref_embed
         scores = []
         for r, next_node_id in candidate_acts:
             # print(r, next_node_id)
@@ -409,12 +409,15 @@ class BatchKGEnvironment(object):
         actions.extend(candidate_acts)
         return actions
 
-    def _batch_get_actions(self, batch_path, done):
-        return [self._get_actions(path, done) for path in batch_path]
+    def _batch_get_actions(self, batch_path, done, user_pref_embed = None):
+        return [self._get_actions(path, done, user_pref_embed) for path in batch_path]
 
-    def _get_state(self, path):
+    def _get_state(self, path, user_pref_embed = None):
         """Return state of numpy vector: [user_embed, curr_node_embed, last_node_embed, last_relation]."""
-        user_embed = self.embeds["user"][path[0][-1]]
+        if user_pref_embed is None:
+            user_embed = self.embeds["user"][path[0][-1]]
+        else:
+            user_embed = user_pref_embed #self.embeds["user"][path[0][-1]] + user_pref_embed
         zero_embed = np.zeros(self.embed_size)
         if len(path) == 1:  # initial state
             state = self.state_gen(
@@ -458,8 +461,8 @@ class BatchKGEnvironment(object):
         )
         return state
 
-    def _batch_get_state(self, batch_path):
-        batch_state = [self._get_state(path) for path in batch_path]
+    def _batch_get_state(self, batch_path, user_pref_embed = None):
+        batch_state = [self._get_state(path, user_pref_embed) for path in batch_path]
         return np.vstack(batch_state)  # [bs, dim]
 
     def _get_reward(self, path):
@@ -475,7 +478,7 @@ class BatchKGEnvironment(object):
         """Episode ends only if max path length is reached."""
         return self._done or len(self._batch_path[0]) >= self.max_num_nodes
 
-    def reset(self, uids=None):
+    def reset(self, uids=None, user_pref_embed=None):
         if uids is None:
             all_uids = list(self.kg("user").keys())
             uids = [random.choice(all_uids)]
@@ -483,8 +486,8 @@ class BatchKGEnvironment(object):
         # each element is a tuple of (relation, entity_type, entity_id)
         self._batch_path = [[(self.kg_args.self_loop, "user", uid)] for uid in uids]
         self._done = False
-        self._batch_curr_state = self._batch_get_state(self._batch_path)
-        self._batch_curr_actions = self._batch_get_actions(self._batch_path, self._done)
+        self._batch_curr_state = self._batch_get_state(self._batch_path, user_pref_embed)
+        self._batch_curr_actions = self._batch_get_actions(self._batch_path, self._done, user_pref_embed)
         self._batch_curr_reward = self._batch_get_reward(self._batch_path)
 
         return self._batch_curr_state
