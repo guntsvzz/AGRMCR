@@ -147,13 +147,62 @@ This script processes the data to generate relation files, which describe variou
 
 </details>
 
-## GRECS - Graph Reasoning (GR)
+## Transitional Embedding (TranSE)
 
 1. Process original files
 2. Dataset Split, Cold users/items, and Knowledge Graph Creation
 3. Train the Knowledge Graph Embeddings
-4. Train the RL agent
-5. Evaluation
+
+<details>
+<summary> Details code </summary>
+
+```bash
+```
+
+</details>
+
+<details>
+<summary> Description </summary>
+
+</details>
+
+
+
+## UNICORN - Multi-round Conversation Recommendation (MCR)
+1. Training RL Agent
+2. Evaluation RL Agent
+
+```bash
+source 03-UNICORN/run_unicorn.sh
+sourec 03-UNICORN/evaluation_cold_start.sh
+```
+
+<details>
+
+<summary>Details code</summary>
+
+```bash
+```
+
+</details>
+
+<details>
+<summary> Description </summary>
+
+### STEP 1 : Training RL Agent `RL_model.py`
+
+This script will train RL policy network. Given $p_0$, the agent will decide which items to recommend.
+
+### STEP 2 : Evaluation RL Agent`evaluate.py`
+
+This script will evaluate RL policy network. Given $p_0$, the agent will decide which items to recommend
+
+</details>
+
+## GRECS - Graph Reasoning (GR)
+
+1. Train the RL agent
+2. Evaluation
 
 ```bash
 source 02-GRECS/run_grec.sh
@@ -210,37 +259,6 @@ This script processes the purchase.txt to generate pair(user,item) of train/test
 
 ### STEP 6 : Evaluation RL agent `test_agent.py`
 #### Generated Files:
-
-</details>
-
-## UNICORN - Multi-round Conversation Recommendation (MCR)
-1. Training RL Agent
-2. Evaluation RL Agent
-
-```bash
-source 03-UNICORN/run_unicorn.sh
-sourec 03-UNICORN/evaluation_cold_start.sh
-```
-
-<details>
-
-<summary>Details code</summary>
-
-```bash
-```
-
-</details>
-
-<details>
-<summary> Description </summary>
-
-### STEP 1 : Training RL Agent `RL_model.py`
-
-This script will train RL policy network. Given $p_0$, the agent will decide which items to recommend.
-
-### STEP 2 : Evaluation RL Agent`evaluate.py`
-
-This script will evaluate RL policy network. Given $p_0$, the agent will decide which items to recommend
 
 </details>
 
