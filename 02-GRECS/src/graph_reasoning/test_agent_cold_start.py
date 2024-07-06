@@ -12,7 +12,7 @@ from kg_env_m import BatchKGEnvironment
 from actor_critic import ActorCritic
 from utils import *
 import wandb
-
+from make_cold_start_kg import InitalUserEmbedding
 
 def evaluate(
     topk_matches,
@@ -278,7 +278,7 @@ def batch_beam_search_cold_start(env, model, kg_config, uids, device, topk=[10, 
             batch_masks.append(act_mask)
         return np.vstack(batch_masks)
 
-    state_pool = env.reset(uids, user_pref_embed)  # numpy of [bs, dim]
+    state_pool = env.reset(uids, user_pref_embed, args.embeds_type)  # numpy of [bs, dim]
     path_pool = env._batch_path  # list of list, size=bs
     probs_pool = [[] for _ in uids]
     model.eval()
@@ -383,7 +383,14 @@ def batch_beam_search(env, model, kg_config, uids, device, topk=[10, 3, 1], poli
             state_pool = env._batch_get_state(path_pool)
     return path_pool, probs_pool
 
-
+# Cold start user
+def update_paths_with_uid(paths, uid):
+    updated_paths = []
+    for path in paths:
+        updated_path = [(path[0][0], path[0][1], uid)] + path[1:]
+        updated_paths.append(updated_path)
+    return updated_paths
+        
 def predict_paths(
     policy_file, path_file, config, config_agent, kg_config, set_name="test"
 ):
@@ -412,37 +419,122 @@ def predict_paths(
     model_sd.update(pretrain_sd)
     model.load_state_dict(model_sd)
 
-    if set_name in ['test', 'test_cold_start']:
+
+    if 'test' in set_name:
+    # if set_name in ['test', 'test_cold_start', 'test_cold_start_trim', 'test_cold_start_mix', 'test_cold_start_mix_trim']:
         test_labels = load_labels(config.processed_data_dir, "test")
     else:
         test_labels = load_labels(config.processed_data_dir, set_name)
     test_uids = list(test_labels.keys())
 
-    batch_size = 16
-    start_idx = 0
-    all_paths, all_probs = [], []
-    pbar = tqdm(total=len(test_uids))
-    while start_idx < len(test_uids):
-        end_idx = min(start_idx + batch_size, len(test_uids))
-        batch_uids = test_uids[start_idx:end_idx]
-        paths, probs = batch_beam_search(
-            env,
-            model,
-            kg_config,
-            batch_uids,
-            config_agent.device,
-            topk=config_agent.topk,
-            policy=config_agent.modified_policy,
-        )
-        all_paths.extend(paths)
-        all_probs.extend(probs)
-        start_idx = end_idx
-        pbar.update(batch_size)
+    if set_name in ['test', 'test_cold_start']:
+        batch_size = 16
+        start_idx = 0
+        all_paths, all_probs = [], []
+        pbar = tqdm(total=len(test_uids))
+        while start_idx < len(test_uids):
+            end_idx = min(start_idx + batch_size, len(test_uids))
+            batch_uids = test_uids[start_idx:end_idx]
+            paths, probs = batch_beam_search(
+                env,
+                model,
+                kg_config,
+                batch_uids,
+                config_agent.device,
+                topk=config_agent.topk,
+                policy=config_agent.modified_policy,
+            )
+            all_paths.extend(paths)
+            all_probs.extend(probs)
+            start_idx = end_idx
+            pbar.update(batch_size)
+
+    else:
+        #######################################Loading user preference#######################################
+        if args.domain is not None:
+            user_pref = load_user_pref(config.processed_data_dir, args.domain)
+        # if args.set_name in ['test', 'test_cold_start', 'test_cold_start_trim', 'test_cold_start_mix', 'test_cold_start_mix_trim']:
+        global cold_start_uids
+        cold_start_uids = {}
+        init_embed = InitalUserEmbedding(set_name="test", config=config)
+        for idx in tqdm(range(len(user_pref))):
+            user_id = user_pref[str(idx)]['idx_user']
+            target_item = user_pref[str(idx)]['idx_item']
+            user_acc_feature = user_pref[str(idx)]['user_acc_feature']
+            user_rej_feature = user_pref[str(idx)]['user_rej_feature']
+            user_rej_items = user_pref[str(idx)]['user_rej_items']
+            
+            user_preferred = init_embed.user_preference_config(
+                user_acc_feature = user_acc_feature, 
+                user_rej_feature = user_rej_feature, 
+                user_rej_items = user_rej_items, 
+            )
+            
+            user_pref_emb = init_embed.embeds['user'][user_pref[str(idx)]['idx_user']]
+            
+            idx_cand_user, cand_user_emb = init_embed.distance(user_pref_emb, top_k=5) #N+1 because it wil remove later
+            user_preferred['related_user'] = idx_cand_user
+            cold_start_uids[user_pref[str(idx)]['idx_user']] = user_preferred
+            # break
+        print('all_user_pref', len(cold_start_uids))
+        #####################################################################################################
+
+        # Convert lists to sets for fast membership checking
+        test_uids_set = set(test_uids)
+        cold_start_set = set(cold_start_uids)
+        # len(test_uids), len(all_user_pref)
+        # Extract elements in test_uids but not in all_user_pref
+        extracted_uids = test_uids_set - cold_start_set
+        # Convert the result back to a list if needed
+        non_cold_start_uids = list(extracted_uids)
+        # len(non_cold_start_uids)
+        assert len(test_uids) == len(cold_start_uids) + len(non_cold_start_uids)
+
+        batch_size = 16
+        start_idx = 0
+        all_paths, all_probs = [], []
+        pbar = tqdm(total=len(non_cold_start_uids))
+        # Non-cold start user
+        while start_idx < len(non_cold_start_uids):
+            end_idx = min(start_idx + batch_size, len(non_cold_start_uids))
+            batch_uids = non_cold_start_uids[start_idx:end_idx]
+            paths, probs = batch_beam_search(
+                env,
+                model,
+                kg_config,
+                batch_uids,
+                config_agent.device,
+                topk=config_agent.topk,
+                policy=config_agent.modified_policy,
+            )
+            all_paths.extend(paths)
+            all_probs.extend(probs)
+            start_idx = end_idx
+            pbar.update(batch_size)
+                    
+        start_idx = 0
+        for uid in tqdm(cold_start_uids):
+            batch_uids = cold_start_uids[uid]['related_user'][1:]
+            paths, probs = batch_beam_search_cold_start(
+                env,
+                model,
+                kg_config,
+                batch_uids,
+                config_agent.device,
+                topk=config_agent.topk,
+                policy=config_agent.modified_policy,
+                user_pref_embed = user_pref_emb #adding user_pref 
+            )
+
+            updated_paths = update_paths_with_uid(paths, uid)
+            
+            all_paths.extend(updated_paths)
+            all_probs.extend(probs)
+        
     predicts = {"paths": all_paths, "probs": all_probs}
     pickle.dump(predicts, open(path_file, "wb"))
     if config.use_wandb:
         wandb.save(path_file)
-
 
 def evaluate_paths(
     dir_path,
@@ -454,6 +546,7 @@ def evaluate_paths(
     result_file_dir,
     set_name="test",
     validation=False,
+    trim=False
 ):
     embeds = load_embed(dir_path, set_name)
     user_embeds = embeds["user"]
@@ -468,12 +561,13 @@ def evaluate_paths(
         if path[-1][1] != "item":
             continue
         uid = path[0][2]
-        # 2) Triming item which are assosiacted with user_rej_items        
-        # if pid in user_rej_items: 
-        #     continue  # Skip this item if it's in the user_rej_items list
         if uid not in pred_paths:
             continue
         pid = path[-1][2]
+        # 2) Triming item which are assosiacted with user_rej_items     
+        if uid in cold_start_uids.keys():
+            if (pid in cold_start_uids[uid]['non-purchase']) and (trim is True): 
+                continue  # Skip this item if it's in the user_rej_items list
         if pid not in pred_paths[uid]:
             pred_paths[uid][pid] = []
         path_score = scores[uid][pid]
@@ -571,18 +665,11 @@ def evaluate_paths(
 def test(config, set_name):
     config_agent = config.AGENT
     kg_config = config.KG_ARGS
-
+    
     policy_file = config_agent.log_dir + "/tmp_policy_model_epoch_{}.ckpt".format(
         config_agent.epochs
     )
-    if set_name == 'test':
-        path_file = config_agent.log_dir + "/policy_paths_epoch_{}.pkl".format(
-            config_agent.epochs
-        )
-    elif set_name == 'test_cold_start':
-        path_file = config_agent.log_dir + "/policy_paths_epoch_{}_cold_start.pkl".format(
-            config_agent.epochs
-        )
+    path_file = config_agent.log_dir + f"/policy_paths_epoch_{config_agent.epochs}_cold_start_{set_name}.pkl"
 
     train_labels = load_labels(config.processed_data_dir, "train")
     test_labels = load_labels(config.processed_data_dir, "test")
@@ -603,7 +690,7 @@ def test(config, set_name):
         + "_topk_"
         + "_".join(map(str, config_agent.topk))
         + "_set_name_"
-        + set_name
+        + "_".join(set_name)
     )
 
     config_agent.result_file_dir = os.path.join(
@@ -613,12 +700,13 @@ def test(config, set_name):
     os.makedirs(
         config_agent.result_file_dir,
         exist_ok=True,
-    )
-
+    )     
+    
     if config_agent.run_path:
         predict_paths(
             policy_file, 
-            path_file, config, 
+            path_file, 
+            config, 
             config_agent, 
             kg_config,
             set_name = set_name
@@ -632,32 +720,28 @@ def test(config, set_name):
             kg_config,
             config.use_wandb,
             config_agent.result_file_dir,
-            set_name = set_name,
+            # set_name = "test",
             validation=False,
+            trim=args.trim
         )
 
+def load_user_pref(path, domain):
+    user_pref_path = os.path.join(path)
+    # Load JSON data from a file
+    user_pref = json.load(open(f'{user_pref_path}/user_preference_{domain}.json', 'r'))
+    return user_pref
 
 if __name__ == "__main__":
     boolean = lambda x: (str(x).lower() == "true")
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--config",
-        type=str,
-        help="Config file.",
-        default="config/moocube_01_01/UPGPR_test.json",
-    )
-    parser.add_argument(
-        "--seed", 
-        type=int, 
-        help="Random seed.", 
-        default=0
-    )
+    parser.add_argument("--config", type=str, help="Config file.", default="config/beauty/graph_reasoning/UPGPR.json", )
+    parser.add_argument("--seed", type=int, help="Random seed.", default=0)
     parser.add_argument(
         "--set_name", 
         type=str, 
         help="Set name.", 
         default="test", 
-        choices=['train','test', 'test_cold_start']
+        choices=['train','test', 'test_cold_start', 'test_cold_start_trim', 'test_cold_start_mix', 'test_cold_start_mix_trim']
     )
     parser.add_argument(
         '--domain', 
@@ -665,6 +749,13 @@ if __name__ == "__main__":
         default=None, 
         choices=['Beauty','Cellphones', 'Clothing', 'CDs', None],
         help='One of {CDs, Beauty, Clothing, Cellphones, None}.'
+    )
+    parser.add_argument("--trim", action="store_true", help="Triming or not", default=False)
+    parser.add_argument(
+        "--embeds_type", 
+        help="mix : user preference + other, past: only other, None: only user preference", 
+        default=None,
+        choices=['mix','past', None],
     )
     args = parser.parse_args()
 

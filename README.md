@@ -55,6 +55,7 @@ Four Amazon datasets (Amazon_Beauty, Amazon_CDs, Amazon_Cellphones, Amazon_Cloth
 | User $\xrightarrow{\text{purchase}}$ Product               | 1.1M    | 278k       | 194k      | 198k       |
 | User $\xrightarrow{\text{mention}}$ Word                   | 191M    | 17M        | 18M       | 18M        |
 | User $\xrightarrow{\text{like}}$ Brand | 192k    | 60k        | 90k       | 132k       |
+| User $\xrightarrow{\text{dislike}}$ Brand | 192k    | 60k        | 90k       | 132k       |
 | User $\xrightarrow{\text{interested in}}$ Category | 2.0M    | 949k       | 288k      | 354k       |
 | Product $\xrightarrow{\text{described by}}$ Word          | 191M    | 17M        | 18M       | 18M        |
 | Product $\xrightarrow{\text{belong to}}$ Category | 466k    | 154k       | 36k       | 49k        |
@@ -142,6 +143,8 @@ This script processes the data to generate relation files, which describe variou
 - `category.txt`: Contains a list of unique categories.
 - `related_product.txt` : Contains a list of unique related_product product IDs.
 
+### STEP 5 : Clone preprocessed dataset to Path Reasoning 
+
 </details>
 
 ## GRECS - Graph Reasoning (GR)
@@ -200,10 +203,12 @@ This script processes the purchase.txt to generate pair(user,item) of train/test
 - `test_transe_model.pkl` : null/avg translation test embedded
 - `validation_transe_embed.pkl` : null/avg translation valid embedded
 
-### STEP 4 : Train RL agent `train_agent.py`
+### STEP 4 : Clone transE embedding to Multi-round conversation
+
+### STEP 5 : Train RL agent `train_agent.py`
 #### Generated Files:
 
-### STEP 5 : Evaluation RL agent `test_agent.py`
+### STEP 6 : Evaluation RL agent `test_agent.py`
 #### Generated Files:
 
 </details>
@@ -214,6 +219,7 @@ This script processes the purchase.txt to generate pair(user,item) of train/test
 
 ```bash
 source 03-UNICORN/run_unicorn.sh
+sourec 03-UNICORN/evaluation_cold_start.sh
 ```
 
 <details>
@@ -238,7 +244,7 @@ This script will evaluate RL policy network. Given $p_0$, the agent will decide 
 
 </details>
 
-## Methodology
+<!-- ## Methodology
 
 1. Construct New user preferred (NUP) in the form of graph.
 2. Initializing NUP embeddings for Users/Items by translation
@@ -328,7 +334,7 @@ We construct a pair consisting of an entity and a relation based on the last sta
 
 - `Trim` : After obtaining GR of $e_{candidate}$, we eliminate the nodes of $\mathcal{P}_{\mathrm{rej}}$ and $\mathcal{V}_{\mathrm{rej}}$ 
 
-</details>
+</details> -->
 
 
 
@@ -392,28 +398,6 @@ done
 ```
 
 </details>
-
-## TO-DO
-- Preprocessing dataset (JRL)
-    - Download metadata and 5-core Amazon dataset
-        - [x] Beauty
-        - [x] CDs_and_Vinyl
-        - [x] Clothing_Shoes_and_Jewelry
-        - [x] Cell_Phones_and_Accessories
-    - [x] constructing `like`/`dislike`
-    - [x] adding `feature` to MCR dataset
-    - [x] config `feature` for UPGPR
-- Training Model
-    - [x] Transitional Embedding 
-    - [x] Train/Eval RL agent for MCR
-    - [x] Train/Eval RL agent for UPGPR
-    - [x] changing cold-start embedding value for AGRMCR
-- User Preference 
-    - [x] Matching features which are brand/category 
-    - [x] Translation
-    - [ ] Trim
-- Baseline
-    - [x] run_baseline.sh
 
 ## Citation
 Todsavad Tangtortan, Pranisaa Charnparttaravanit, Akraradet Sinsamersuk, Chaklam Silpasuwanchai. 2024. Adapting Graph Reasoning for Explainable Cold Start Recommendation on Multi-Round Conversation Recommendation (AGRMCR). 

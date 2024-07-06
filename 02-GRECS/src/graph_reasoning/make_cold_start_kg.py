@@ -32,6 +32,64 @@ class InitalUserEmbedding:
         self.offset  = len(self.kg.G['brand'])
         self.user_preferences = UserPreferences()
         
+    def cos_sim(self, e_new, e_candidates, top_k=10):
+        # Compute norms
+        norm_e_new = np.linalg.norm(e_new)
+        norm_e_candidates = np.linalg.norm(e_candidates, axis=1)
+        # Handle zero norms by setting them to a small positive value
+        norm_e_new = norm_e_new if norm_e_new != 0 else 1e-9
+        norm_e_candidates[norm_e_candidates == 0] = 1e-9
+        # Compute cosine similarity
+        cosine = np.dot(e_candidates, e_new) / (norm_e_candidates * norm_e_new)
+        # Find the indices of the top k maximum cosine similarities
+        top_k_indices = np.argpartition(cosine, -top_k)[-top_k:]
+        # Get the top k cosine similarities
+        top_k_similarities = cosine[top_k_indices]
+        # Sort the top k similarities and their indices
+        sorted_indices = top_k_indices[np.argsort(-top_k_similarities)]
+        sorted_similarities = top_k_similarities[np.argsort(-top_k_similarities)]
+        return sorted_similarities, sorted_indices
+    
+    def distance(self, user_pref_embed, top_k=10):
+        similarity, idx_user = self.cos_sim(
+            e_new=user_pref_embed, e_candidates=self.embeds['user'], top_k=top_k)
+        # print('Cosine Similarity', similarity)
+        # print('Highest idx Cand User:', idx_user)
+        # distance, idx_user = self.euc_dist(
+        #     e_new=user_pref_embed, e_candidates=self.embeds['user'], top_k=top_k)
+        # # print("Euclidean distance:", distance)
+        # # print('Highest Cand User:', idx_user)
+        cand_user_emb = self.embeds['user'][idx_user]
+        return idx_user, cand_user_emb
+     
+    # def translation(self, user_acc_feature=None, user_rej_feature=None, user_rej_items=None):
+    #     # Construction from user's perference
+    #     self.user_preferred = self.user_pref(user_acc_feature, user_rej_feature, user_rej_items)
+    #     # Intialize zero user embedding
+    #     zero_embeds = {'user': np.zeros(100,)} # zero_embeds['user']
+    #     nb_relations = 0
+    #     # Accessing items in the dictionary:
+    #     for relation, entity in self.user_preferences.items():
+    #         # print(f'RELATION : {relation.ljust(16)} | ENTITY : {entity}')
+    #         if relation == 'disinterested_in':
+    #             relation = 'interested_in'
+    #             continue
+    #         entities = self.user_preferred[relation]
+    #         all_related_emb = (
+    #             self.embeds[entity[1]][entities] - self.embeds[relation][0]
+    #         )
+    #         nb_relations += all_related_emb.shape[0]
+    #         # sum all related entities embeddings
+    #         if relation in ['interested_in', 'like', 'dislike']:
+    #             zero_embeds["user"] += all_related_emb.sum(axis=0)
+    #         # elif relation in ['disinterested_in']:
+    #         #     zero_embeds["user"] -= all_related_emb.sum(axis=0)
+    #     # divide by the number of relations to get the average
+    #     if nb_relations > 0:
+    #         zero_embeds["user"] /= nb_relations
+            
+    #     return zero_embeds["user"]
+    
     def get_feature(self, idx):
         # Replace with your actual logic to determine if idx is a brand or category
         if idx >= self.offset:
@@ -39,8 +97,7 @@ class InitalUserEmbedding:
         else:
             return 'brand'
     
-    def user_preference_config(
-        self, user_acc_feature=None, user_rej_feature=None, user_rej_items=None, dataset=None):
+    def user_preference_config(self, user_acc_feature=None, user_rej_feature=None, user_rej_items=None):
         if user_acc_feature is None:
             user_acc_feature = list()
         if user_rej_feature is None:
@@ -49,7 +106,7 @@ class InitalUserEmbedding:
             user_rej_items = list()
             
         # Create an empty user dictionary with the same keys and empty lists as values
-        user_preferred = {key: [] for key in dataset.data_args.kg_relation.user.keys()}
+        user_preferred = {key: [] for key in self.dataset.data_args.kg_relation.user.keys()}
         user_preferred['disinterested_in'] = []
         user_preferred['dislike'] = []
         user_preferred['non-purchase'] = []
@@ -81,11 +138,7 @@ def load_user_pref(path, domain):
     user_pref = json.load(open(f'{user_pref_path}/user_preference_{domain}.json', 'r'))
     return user_pref
 
-def make_cold_embeds(config, set_name, domain):
-    # embeds  = load_embed(config.processed_data_dir, set_name)
-    # dataset = load_dataset(config.processed_data_dir, set_name)
-    # kg      = load_kg(config.processed_data_dir, set_name)
-    
+def make_cold_embeds(config, set_name, domain):    
     init_embed = InitalUserEmbedding(
         set_name=set_name,
         config=config
@@ -122,7 +175,6 @@ def make_cold_embeds(config, set_name, domain):
     print('user_pref', len(user_pref))
 
     all_user_pref = {}
-    dataset = load_dataset(config.processed_data_dir, set_name)
     for idx in tqdm(range(len(user_pref))):
         user_id = user_pref[str(idx)]['idx_user']
         target_item = user_pref[str(idx)]['idx_item']
@@ -134,7 +186,7 @@ def make_cold_embeds(config, set_name, domain):
             user_acc_feature = user_acc_feature, 
             user_rej_feature = user_rej_feature, 
             user_rej_items = user_rej_items, 
-            dataset= dataset)
+        )
         
         all_user_pref[user_pref[str(idx)]['idx_user']] = user_preferred
     
