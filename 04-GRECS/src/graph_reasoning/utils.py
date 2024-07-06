@@ -28,6 +28,7 @@ def get_entity_tail(args, entity_head, relation):
 def get_item_relations(args):
     return args.item_relation.keys()
 
+
 def compute_tfidf_fast(vocab, docs):
     """Compute TFIDF scores for all vocabs.
 
