@@ -166,15 +166,15 @@ This script processes the data to generate relation files, which describe variou
 
 </details>
 
-
-
 ## UNICORN - Multi-round Conversation Recommendation (MCR)
 1. Training RL Agent
 2. Evaluation RL Agent
+3. Inference User Preference
 
 ```bash
-source 03-UNICORN/run_unicorn.sh
-sourec 03-UNICORN/evaluation_cold_start.sh
+source run_unicorn.sh
+source inference_cold_start.sh
+source clone_to_grec.sh
 ```
 
 <details>
@@ -196,6 +196,10 @@ This script will train RL policy network. Given $p_0$, the agent will decide whi
 ### STEP 2 : Evaluation RL Agent`evaluate.py`
 
 This script will evaluate RL policy network. Given $p_0$, the agent will decide which items to recommend
+
+### STEP 3 : Inferencce User perference `evaluate.py`
+
+This script will inference cold_start user to construct user perference
 
 </details>
 

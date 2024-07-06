@@ -449,12 +449,12 @@ def predict_paths(
             start_idx = end_idx
             pbar.update(batch_size)
 
+        cold_start_uids = {}
     else:
         #######################################Loading user preference#######################################
         if args.domain is not None:
             user_pref = load_user_pref(config.processed_data_dir, args.domain)
-        # if args.set_name in ['test', 'test_cold_start', 'test_cold_start_trim', 'test_cold_start_mix', 'test_cold_start_mix_trim']:
-        global cold_start_uids
+        # if args.set_name in ['test', 'test_cold_start', 'test_cold_start_trim', 'test_cold_start_mix', 'test_cold_start_mix_trim']: 
         cold_start_uids = {}
         init_embed = InitalUserEmbedding(set_name="test", config=config)
         for idx in tqdm(range(len(user_pref))):
@@ -472,7 +472,7 @@ def predict_paths(
             
             user_pref_emb = init_embed.embeds['user'][user_pref[str(idx)]['idx_user']]
             
-            idx_cand_user, cand_user_emb = init_embed.distance(user_pref_emb, top_k=5) #N+1 because it wil remove later
+            idx_cand_user, cand_user_emb = init_embed.distance(user_pref_emb, top_k=6) #N+1 because it wil remove later
             user_preferred['related_user'] = idx_cand_user
             cold_start_uids[user_pref[str(idx)]['idx_user']] = user_preferred
             # break
@@ -535,6 +535,8 @@ def predict_paths(
     pickle.dump(predicts, open(path_file, "wb"))
     if config.use_wandb:
         wandb.save(path_file)
+        
+    return cold_start_uids
 
 def evaluate_paths(
     dir_path,
@@ -546,7 +548,8 @@ def evaluate_paths(
     result_file_dir,
     set_name="test",
     validation=False,
-    trim=False
+    trim=False,
+    cold_start_uids={}
 ):
     embeds = load_embed(dir_path, set_name)
     user_embeds = embeds["user"]
@@ -703,7 +706,7 @@ def test(config, set_name):
     )     
     
     if config_agent.run_path:
-        predict_paths(
+        cold_start_uids = predict_paths(
             policy_file, 
             path_file, 
             config, 
@@ -722,7 +725,8 @@ def test(config, set_name):
             config_agent.result_file_dir,
             # set_name = "test",
             validation=False,
-            trim=args.trim
+            trim=args.trim,
+            cold_start_uids=cold_start_uids
         )
 
 def load_user_pref(path, domain):

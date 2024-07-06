@@ -1,6 +1,6 @@
 
 MAX_STEPS=10
-echo "------------- step 2: Evaluation RL Agent on cold_start_user --------------"
+echo "------------- step 1: Evaluation RL Agent on cold_start_user --------------"
 start=$(date +%s)
 echo "Start time: $(date)"
 echo "------------- Beauty -------------------------"
@@ -16,3 +16,4 @@ echo "End time: $(date)"
 duration=$((end - start))
 echo "Duration: $(($duration / 3600)) hr $((($duration % 3600) / 60)) min $(($duration % 60)) sec"
 echo "----------------------------------------------------------"
+
