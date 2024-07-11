@@ -383,10 +383,10 @@ class BatchKGEnvironment(object):
         # if user_pref_embed is None:
         #     user_embed = self.embeds["user"][path[0][-1]]
         # else:
-        #     user_embed = self.embeds["user"][path[0][-1]] + user_pref_embed
+        #     user_embed = 0.8*(self.embeds["user"][path[0][-1]]) + 0.2*(user_pref_embed)
             
         if (user_pref_embed is not None) and (embeds_type=='mix'):
-            user_embed = self.embeds["user"][path[0][-1]] + user_pref_embed
+            user_embed = 0.8*(self.embeds["user"][path[0][-1]]) + 0.2*(user_pref_embed)
         elif (user_pref_embed is not None) and (embeds_type=='past'):
             user_embed = user_pref_embed
         else:
@@ -432,10 +432,10 @@ class BatchKGEnvironment(object):
         # if user_pref_embed is None:
         #     user_embed = self.embeds["user"][path[0][-1]]
         # else:
-        #     user_embed = self.embeds["user"][path[0][-1]] + user_pref_embed
+        #     user_embed = 0.8*(self.embeds["user"][path[0][-1]]) + 0.2*(user_pref_embed)
             
         if (user_pref_embed is not None) and (embeds_type == 'mix'):
-            user_embed = self.embeds["user"][path[0][-1]] + user_pref_embed
+            user_embed = 0.8 * (self.embeds["user"][path[0][-1]]) + 0.2 * (user_pref_embed)
         elif (user_pref_embed is not None) and (embeds_type == 'past'):
             user_embed = user_pref_embed
         else:

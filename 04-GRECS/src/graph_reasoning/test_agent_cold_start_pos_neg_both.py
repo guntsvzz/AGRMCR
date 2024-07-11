@@ -12,7 +12,7 @@ from kg_env_m import BatchKGEnvironment
 from actor_critic import ActorCritic
 from utils import *
 import wandb
-from make_cold_start_kg import InitalUserEmbedding
+from make_cold_start_kg_pos_neg_both import InitalUserEmbedding
 
 def evaluate(
     topk_matches,
@@ -746,6 +746,8 @@ def test(config, set_name):
         + str(args.topk_candidate)
         + "_preference_"
         + args.preference
+        # + "_trim_"
+        # + str(args.trim)
     )
 
 
@@ -807,7 +809,9 @@ if __name__ == "__main__":
             'test_cold_start_mix', 
             'test_cold_start_mix_trim',
             'test_cold_start_past',
-            'test_cold_start_past_trim']
+            'test_cold_start_past_trim',
+            'test_cold_start_mix_only'
+        ]
     )
     parser.add_argument(
         '--domain', 
